@@ -1,4 +1,4 @@
-CSCNetProject
-=============
+CSCNetProject - Client
+======================
 
-Participatory Cloud Computing
+Client for Participatory Cloud Computing
