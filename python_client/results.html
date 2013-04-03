@@ -14,19 +14,19 @@ $(function () {
                 marginBottom: 25
             },
             title: {
-                text: query_title,
+                text: query_data.title,
                 x: -20 //center
             },
             subtitle: {
-                text: query_subtitle,
+                text: query_data.subtitle,
                 x: -20
             },
             xAxis: {
-                categories: query_dates
+                categories: query_data.dates
             },
             yAxis: {
                 title: {
-                    text: query_y_axis
+                    text: query_data.y_axis
                 },
                 plotLines: [{
                     value: 0,
@@ -35,7 +35,7 @@ $(function () {
                 }]
             },
             tooltip: {
-                valueSuffix: query_data_type
+                valueSuffix: query_data.data_type
             },
             legend: {
                 layout: 'vertical',
@@ -45,14 +45,12 @@ $(function () {
                 y: 100,
                 borderWidth: 0
             },
-            series: query_data
+            series: query_data.data
         });
     });
-    
-
-		</script>
-	</head>
-	<body>
+    </script>
+</head>
+<body>
 <script src="../lib/highcharts/js/highcharts.js"></script>
 <script src="../lib/highcharts/js/modules/exporting.js"></script>
 
