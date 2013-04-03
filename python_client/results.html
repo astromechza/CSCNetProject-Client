@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Query Results</title>
+		<script type="text/javascript" src=query_data.json></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script type="text/javascript">
+$(function () {
+        $('#container').highcharts({
+            chart: {
+                type: 'line',
+                marginRight: 130,
+                marginBottom: 25
+            },
+            title: {
+                text: query_title,
+                x: -20 //center
+            },
+            subtitle: {
+                text: query_subtitle,
+                x: -20
+            },
+            xAxis: {
+                categories: query_dates
+            },
+            yAxis: {
+                title: {
+                    text: query_y_axis
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }]
+            },
+            tooltip: {
+                valueSuffix: query_data_type
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'top',
+                x: -10,
+                y: 100,
+                borderWidth: 0
+            },
+            series: query_data
+        });
+    });
+    
+
+		</script>
+	</head>
+	<body>
+<script src="../lib/highcharts/js/highcharts.js"></script>
+<script src="../lib/highcharts/js/modules/exporting.js"></script>
+
+<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+
+	</body>
+</html>
