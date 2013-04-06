@@ -5,56 +5,17 @@
 		<title>Query Results</title>
 		<script type="text/javascript" src="../lib/jquery.min.js"></script>
 		<script type="text/javascript">
-query_data = JSON.parse([@JSON_QUERY_DATA_STRING])
-$(function () {
-        $('#container').highcharts({
-            chart: {
-                type: 'line',
-                marginRight: 130,
-                marginBottom: 25
-            },
-            title: {
-                text: query_data.title,
-                x: -20 //center
-            },
-            subtitle: {
-                text: query_data.subtitle,
-                x: -20
-            },
-            xAxis: {
-                categories: query_data.dates
-            },
-            yAxis: {
-                title: {
-                    text: query_data.y_axis_legend
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-            },
-            tooltip: {
-                valueSuffix: query_data.data_type
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'top',
-                x: -10,
-                y: 100,
-                borderWidth: 0
-            },
-            series: query_data.data
-        });
-    });
+query_data = JSON.parse(@JSON_QUERY_DATA_STRING)
+@HIGHCHARTS_SETUP
     </script>
 </head>
 <body>
-<script src="../lib/highcharts/js/highcharts.js"></script>
-<script src="../lib/highcharts/js/modules/exporting.js"></script>
-
-<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
-
-	</body>
+    <script src="../lib/highcharts/js/highcharts.js"></script>
+    <script src="../lib/highcharts/js/modules/exporting.js"></script>
+    <div id="heading"><center><h1>Results of Query</h1><center></div>
+    <div id="container" style="min-width: 400px; margin: 0 auto">
+        @CONTAINER_CONTENTS
+    </div>
+    <div id="footer"><small> @FOOTER_CONTENTS</small> </div>
+</body>
 </html>

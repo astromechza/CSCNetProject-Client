@@ -4,3 +4,4 @@ bin/
 *.swp
 __pycache__
 *.pyc
+python_client/results.html
