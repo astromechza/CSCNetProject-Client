@@ -45,7 +45,7 @@ class Punix:
             """
             if print_data:
                 print "Retrieving Sensor Data for",duration,"seconds"
-            collected_data = data_heading + "\n" # data collecting during the duration
+            collected_data = "Time," + data_heading + "\n" # data collecting during the duration
 
             #split string to determine the correct tokenization for 'args' to popen on unix	
             args = shlex.split(self.fullCommand)
@@ -61,20 +61,18 @@ class Punix:
                         retcode = p.poll() #returns None while subprocess is running
                         line = p.stdout.readline() 
                         # begin --- your handling can go here
-                        end_char = ''
-                        formatted_line = line + "\n"
-                        
                         # Process data we want to collect
                         if line.startswith(headings[0]) or \
                            line.startswith(headings[1]): 
+                            formatted_line = line[line.index("=")+2:].strip()
                             if line.startswith(headings[0]):
-                                end_char = ','
+                                formatted_line = str(time.time()) + "," + \
+                                                 formatted_line + ","
                             if line.startswith(headings[1]):
                                 if collected_data[-1] != ",":
                                     continue
-                                end_char = '\n'
-                            formatted_line = line[line.index("=")+2:].strip()
-                            collected_data += formatted_line + end_char
+                                formatted_line = formatted_line + "\n"
+                            collected_data += formatted_line
 
                         if(print_data):
                             sys.stdout.write(line)

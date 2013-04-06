@@ -1,10 +1,15 @@
-import json
+import json, webbrowser, os
 from punix import Punix
-QUERY_DATA_PATH = "query_data.json"
-QUERY_DATA_PREAPPEND = "query_data="
+RESULTS_DATA_PATH = "templates/results.html"
+RESULTS_JSON_STRING = "@JSON_QUERY_DATA_STRING"
 class Client:
-    def generate_results(self,dates=[],data= [{"name":"",
-    "data":[]}],y_axis_legend="",title="",subtitle="",data_type=""):
+    def __init__(self):
+        self.port_address="/dev/ttyUSB0"
+        self.serial_dump_path="./serialdump-linux"
+        self.headings = "Temp,Light"
+
+    def generate_graphs(self,dates=[],data= [{"name":"",
+    "data":[]}],y_axis_legend="",title="",subtitle="",data_type="",open_browser=False):
         """
         Generate the json output required to render a line graph with highcharts.js
 
@@ -24,15 +29,33 @@ class Client:
         "title" :title,
         "subtitle" : subtitle,
         "data_type" : data_type}
-        with open(QUERY_DATA_PATH,"w") as f:
-            f.write(QUERY_DATA_PREAPPEND + json.dumps(data_dict))
+        results = ""
+        with open(RESULTS_DATA_PATH,"r") as f:
+            for line in f:
+                results += line
+        results = \
+        results.replace(RESULTS_JSON_STRING,"'"+json.dumps(data_dict)+"'")
+        with open("results.html","w") as f:
+            f.write(results)
+        if open_browser:
+            print("Attempting to open web browser. If this fails, manually"+
+            "open results.html")
+            dir_path = os.path.split(os.path.realpath(__file__))[0]
+            results_path = os.path.join(dir_path,"results.html")
+            url = "file://"+results_path
+            webbrowser.open_new_tab(url)
+        print("Results saved as results.html. Please open with a web browser"+
+        " to view")
 
-
-    def capture_data(self,duration,port_address="/dev/ttyUSB0",
-                     serial_dump_path="./serialdump-linux",verbose=False):
+    def capture_data(self,duration,verbose=False,
+                     output_to_file=False, output_path=""):
         """
         Given a port and a time to catch data for, capture data from a mote
         connected to the computer and dump it to a text file on the computer
         """
-        p = Punix(port_address,serial_dump_path)
-        return p.get_sensor_data(duration,"Temp,Light",print_data=verbose)
+        p = Punix(self.port_address,self.serial_dump_path)
+        data =  p.get_sensor_data(duration,self.headings,print_data=verbose)
+        if(output_to_file):
+            with open(output_path,"w") as f:
+                f.write(data)
+        return data

@@ -11,4 +11,6 @@ Libraries to download
 Put these in a folder called lib in the root folder of the project:
 http://www.highcharts.com/downloads/zips/Highcharts-3.0.0.zip into a folder
 called highcharts
+http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js straight into
+lib
 
