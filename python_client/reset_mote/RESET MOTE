@@ -1,0 +1,12 @@
+At times, the serial output can become corrupted if you run the programs after having disconnected and reconnected the mote, 
+
+sadly this is an issue with the current MSP430 tool chain versions used to compile towards this architecture. 
+
+One option gets around this, and that involves resetting the device. In order to perform this, you may either press the reset button on the mote -  which we would rather you do not do since it requires you to open up the mote. Another option is to reset the mote by use of the z1-bsl-nopic program included here. 
+
+The usage is simple: ./z1-bsl-nopic --z1 -c /dev/ttyUSB0 -r
+
+This is all you should need - however you should take care to have the pyserial package installed on your system, I have included the package with the previous uploads. This should be installed already on your systems in the third year labs.
+
+
+ 
