@@ -114,13 +114,14 @@ class Client:
 
     def upload(self, data):
         """Uploads the data to the stored server"""
+        print ("upload still needs to be implemented")
         # TODO
         pass
 
     def download(self,query):
         """Fetches all records for a given query from the server"""
+        print ("download still needs to be implemented")
         # TODO
-        pass
 
     def get_logs(self,log_type):
         """
@@ -130,4 +131,4 @@ class Client:
         log_type = 2: Downloading logs
         """
         # TODO
-        pass
+        print ("log download still needs to be implemented")

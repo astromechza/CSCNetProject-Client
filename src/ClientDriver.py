@@ -1,49 +1,16 @@
 from Client import Client
+from Menu import choose_screen, execute_screen, get_valid_input
 import sys
-def choose_screen(msg, choices):
-    """
-    An easy way to allow a user to choice an option from a screen
-
-    It takes a screen, a a message to print to the
-    user and a series of choices, and returns the index of the choice
-    chosen by the user
-    """
-    print(msg) 
-    choice = -1 # the option the user chooses
-    while(choice < 0):
-        # print options
-        for i in range(1,len(choices)+1):
-            print "("+str(i)+") :",choices[i-1]
-        # try to get valid input
-        try:
-            choice = int(raw_input());
-            if not (0 < choice <= len(choices)):
-                choice = -1
-                raise ValueError()
-        except ValueError:
-            print ("Choice not a valid integer")
-    return choice-1 # user enters in 1-indexed value
-
-def execute_screen(msg, choices,methods,args):
-    """An easy way to execute a choice given by a user at a particular screen"""
-    choice = choose_screen(msg,choices) # user choice
-    methods[choice](*args[choice]) # execute the method chosen
-
+import os
 def capture_data(client, write_to_file=True):
     """Prompts to allow the capturing of data
     
     if given_file_path is not empty, data will be captured to that file"""
-    choice = -1 # user's choice for duration
-    # TODO: get a capture positive number method
-    while(choice < 0):
-        # keep repeating until positive number choice attained
-        try:
-            choice = int(raw_input("How many seconds would you like to "+
-            "capture data for: "))
-            if choice < 0:
-                raise ValueError()
-        except ValueError:
-            print("Please input an positive number of seconds")
+    # user's choice for duration - must be positive
+    choice = get_valid_input("How many seconds would you like to "+
+            "capture data for: ", 
+            "Please input an positive number of seconds", 
+            lambda x: x > 0, data_converter= float)
 
     # Get the options for data capture
     file_path = ""
@@ -60,10 +27,14 @@ def capture_data(client, write_to_file=True):
 
 def render_local_data(client):
     """Prompts user to give location of data to be rendered into html"""
-    file_path = raw_input("Path of results data file: ")
-    #TODO: replace y/n getting with method
-    open_browser = raw_input("Do you want to open a web browser to view "+
-                             " this data? (y/n)").lower().startswith("y")
+    file_path = get_valid_input("Path of results data file: ",
+            "Please input a file that exists", 
+            lambda x: os.path.isfile(x))
+    
+    open_browser = get_valid_input("Do you want to open a web browser to view "+
+                         " this data? (y/n)", "Please enter either y or n", 
+                         lambda x: x.lower().startswith("y") or
+                         x.lower().startswith("n")).startswith("y")
     client.generate_graph_from_data_file(file_path, open_browser=open_browser)
 
 def upload_data(client, source_id):
@@ -80,8 +51,9 @@ def upload_data(client, source_id):
         raise ValueError("source_id not recognised")
 
     if(source_id == 0):
-        # TODO replace getting paths with a function that checks for validity
-        path = raw_input("Path of the results file: ")
+        path = get_valid_input("Path of results data file: ",
+            "Please input a file that exists", 
+            lambda x: os.path.isfile(x))
         with open(path) as f:
             data = "".join(f.readlines())
     
@@ -104,17 +76,17 @@ def get_data(client, group_id = -1):
     id = -1 means this will prompt you to choose a valid group
     otherwise, this will try get the info for that group id
     """
-    if group_id=-1:
-        # TODO: replace with input validating checker
-        group_id = int(raw_input("What group ID do you want to download info
-        about?"))
+    if group_id==-1:
+        group_id = get_valid_input("Which group do you want to download from?"+
+                                        "Give their SQL id.",
+                                   "Please input a valid id", lambda x: x >= 0, int)
     query = ""#TODO: Give query here that gives this data
     return client.download(query)
 
 def get_raw_data(client):
     """Get the raw data from server"""
-    query = raw_input("What do you want to get from the server? #TODO: figure
-    out wtf raw data is")
+    query = raw_input("What do you want to get from the server? #TODO: figure"+
+    "out wtf raw data is")
     return client.download(query)
 
 def get_logs(client,log_type):
@@ -149,4 +121,5 @@ if __name__=="__main__":
             ("Capture Sensor Data","Display local data","Upload Data to Server","Download Data from Server","Get Server Logs","Exit"),
             [capture_data,render_local_data,execute_screen,execute_screen,execute_screen,sys.exit],
             ([client],[client],upload_screen,download_screen,get_log_screen,()))
+
         execute_screen(*opening_screen)
