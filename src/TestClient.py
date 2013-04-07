@@ -23,11 +23,12 @@ class TestClient(unittest.TestCase):
         self.c = Client()
 
     def test_results_output(self):
-        #TODO: figure out how to test this
+        """Test if client crashes when rendering one graph"""
         self.c.generate_graphs(data=[graph_data])
         self.c.generate_graphs(data=[graph_data], open_browser=True)
     
     def test_results_multiple_output(self):
+        """Test if client crashes when rendering two graphs"""
         self.c.generate_graphs(data=[graph_data,graph_data])
         self.c.generate_graphs(data=[graph_data,graph_data], open_browser=True)
             
