@@ -31,8 +31,7 @@ class Punix:
         print "SIGNAL QUITTING"
         sys.exit()
 
-    def get_sensor_data(self,duration,data_heading,print_data =
-    True):
+    def get_sensor_data(self, duration, data_heading, print_data = True):
             """
             Harvest the sensor data for a given duration. Expects lines which
             contain data to be of the form "heading = number" where heading is
@@ -45,7 +44,7 @@ class Punix:
             """
             if print_data:
                 print "Retrieving Sensor Data for",duration,"seconds"
-            collected_data = "Time," + data_heading + "\n" # data collecting during the duration
+            collected_data = "Time (seconds since epoch)," + data_heading + "\n" # data collecting during the duration
 
             #split string to determine the correct tokenization for 'args' to popen on unix	
             args = shlex.split(self.fullCommand)
@@ -60,10 +59,11 @@ class Punix:
                 while(time.time() - start_time < duration):
                         retcode = p.poll() #returns None while subprocess is running
                         line = p.stdout.readline() 
-                        # begin --- your handling can go here
                         # Process data we want to collect
                         if line.startswith(headings[0]) or \
                            line.startswith(headings[1]): 
+                            print("Seconds past since start of recording = " + str(time.time() - \
+                                  start_time))
                             formatted_line = line[line.index("=")+2:].strip()
                             if line.startswith(headings[0]):
                                 formatted_line = str(time.time()) + "," + \
@@ -76,7 +76,6 @@ class Punix:
 
                         if(print_data):
                             sys.stdout.write(line)
-                        # end --- your handling can go here
                         
                         if(retcode is not None):
                             raise("Unexpected ending with retcode: " + str(retcode))

@@ -70,8 +70,13 @@ class Client:
         connected to the computer and dump it to a text file on the computer
         """
         p = Punix(self.port_address,self.serial_dump_path)
-        data =  p.get_sensor_data(duration,self.headings,print_data=verbose)
-        if(output_to_file):
-            with open(output_path,"w") as f:
-                f.write(data)
+        data = ""
+        try:
+            data =  p.get_sensor_data(duration,self.headings,print_data=verbose)
+            if(output_to_file):
+                with open(output_path,"w") as f:
+                    f.write(data)
+        except OSError:
+            print("Error: Could not capture data. Check sensor is connected "+
+            "and that this is running with the correct permissions")
         return data
