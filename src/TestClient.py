@@ -1,5 +1,6 @@
 import unittest
 from Client import Client
+import os
 graph_data = {
     "dates":['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -22,16 +23,27 @@ class TestClient(unittest.TestCase):
     def setUp(self):
         self.c = Client()
 
+    def validate_results(self):
+        """Validates that the results file given is a valid set of results"""
+        # TODO: Make this a lot more more comprehensive than just checking if a
+        # file exists
+        self.assertTrue(os.path.isfile("results.html"))
+
     def test_results_output(self):
-        """Test if client crashes when rendering one graph"""
-        self.c.generate_graphs(data=[graph_data])
-        self.c.generate_graphs(data=[graph_data], open_browser=True)
+        """Test if client renders a graph"""
+        self.c.generate_graphs(data=[graph_data],feedback=False)
+        self.validate_results()
     
     def test_results_multiple_output(self):
-        """Test if client crashes when rendering two graphs"""
-        self.c.generate_graphs(data=[graph_data,graph_data])
-        self.c.generate_graphs(data=[graph_data,graph_data], open_browser=True)
-            
+        """Test if client renders a graph more than one graph on a page"""
+        self.c.generate_graphs(data=[graph_data,graph_data],feedback=False)
+        self.validate_results()
+    
+    def test_generating_graph_from_local(self):
+        """Tests if client can rendering graphs from a local file"""
+        self.c.generate_graph_from_data_file("test_data.csv",feedback=False);
+        self.validate_results()
+        
     # These require a sensor connected to run
     """
     def test_data_capture_return(self):

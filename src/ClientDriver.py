@@ -53,8 +53,19 @@ def capture_data(client):
     client.capture_data(choice,verbose=verbose,
                      output_to_file=write_to_file, output_path=file_path)
 
+def render_local_data(client):
+    """Prompts user to give location of data to be rendered into html"""
+    file_path = raw_input("Path of results data file: ")
+    #TODO: replace y/n getting with method
+    open_browser = raw_input("Do you want to open a web browser to view "+
+                             " this data? (y/n)").lower().startswith("y")
+    client.generate_graph_from_data_file(file_path, open_browser=open_browser)
+
 if __name__=="__main__":
+    client = Client()
     while True:
         opening_screen = ("Welcome to Sensor Data Client! What would you like to "+
-        "do?",(["Capture Sensor Data","Exit"]),[capture_data,sys.exit],[[Client()],[]])
+        "do?",
+        (["Capture Sensor Data","Display local data","Exit"]),
+        [capture_data,render_local_data,sys.exit],[[client],[client],[]])
         execute_screen(*opening_screen)
