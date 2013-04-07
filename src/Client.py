@@ -111,3 +111,23 @@ class Client:
             print("Error: Could not capture data. Check sensor is connected "+
             "and that this is running with the correct permissions")
         return data
+
+    def upload(self, data):
+        """Uploads the data to the stored server"""
+        # TODO
+        pass
+
+    def download(self,query):
+        """Fetches all records for a given query from the server"""
+        # TODO
+        pass
+
+    def get_logs(self,log_type):
+        """
+        Get log data from the server
+        log_type = 0: All logs
+        log_type = 1: Uploading logs
+        log_type = 2: Downloading logs
+        """
+        # TODO
+        pass

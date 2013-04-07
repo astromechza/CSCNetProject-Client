@@ -29,9 +29,12 @@ def execute_screen(msg, choices,methods,args):
     choice = choose_screen(msg,choices) # user choice
     methods[choice](*args[choice]) # execute the method chosen
 
-def capture_data(client):
-    """Prompts to allow the capturing of data"""
-    choice = -1 # user's choice for duratino
+def capture_data(client, write_to_file=True):
+    """Prompts to allow the capturing of data
+    
+    if given_file_path is not empty, data will be captured to that file"""
+    choice = -1 # user's choice for duration
+    # TODO: get a capture positive number method
     while(choice < 0):
         # keep repeating until positive number choice attained
         try:
@@ -43,8 +46,10 @@ def capture_data(client):
             print("Please input an positive number of seconds")
 
     # Get the options for data capture
-    file_path = raw_input("Please enter the file to write these results to. "+
-    "Leave this line blank if you don't want results written to a file: ")
+    file_path = ""
+    if write_to_file:
+        file_path = raw_input("Please enter the file to write these results to. "+
+        "Leave this line blank if you don't want results written to a file: ")
     write_to_file = not (file_path=="")
     verbose = raw_input("Do you want results to be written to screen while "+
     "recording? (y/n): ").lower().startswith("y")
@@ -69,21 +74,48 @@ def upload_data(client, source_id):
     source_id = 1: Get the data from a sensor
     source_id = 2: Generate the data heuristically
     """
-    pass
+    data = ""
 
+    if not (0 <= source_id <= 2):
+        raise ValueError("source_id not recognised")
+
+    if(source_id == 0):
+        # TODO replace getting paths with a function that checks for validity
+        path = raw_input("Path of the results file: ")
+        with open(path) as f:
+            data = "".join(f.readlines())
+    
+    if(source_id == 1):
+        data = capture_data(client, False)
+
+    if(source_id == 2):
+        # TODO
+        print("Unfortunately this feature is not yet supported!")
+    response = ""
+    if data: 
+        response = client.upload(data)
+
+    return response
 
 def get_data(client, group_id = -1):
     """Get the data of a specified group. 
     
     id = 0 means all groups
     id = -1 means this will prompt you to choose a valid group
-    otherwise, try get the info for that group id
+    otherwise, this will try get the info for that group id
     """
-    pass
+    if group_id=-1:
+        # TODO: replace with input validating checker
+        group_id = int(raw_input("What group ID do you want to download info
+        about?"))
+    query = ""#TODO: Give query here that gives this data
+    return client.download(query)
 
 def get_raw_data(client):
-    """Get the answer to a raw SQL query"""
-    pass
+    """Get the raw data from server"""
+    query = raw_input("What do you want to get from the server? #TODO: figure
+    out wtf raw data is")
+    return client.download(query)
 
 def get_logs(client,log_type):
     """
@@ -92,7 +124,7 @@ def get_logs(client,log_type):
     log_type = 1: Uploading logs
     log_type = 2: Downloading logs
     """
-    pass
+    return client.get_logs(log_type)
 
 if __name__=="__main__":
     client = Client()
