@@ -61,9 +61,6 @@ def upload_data(client, source_id):
     if(source_id == 1):
         data = capture_data(client, False)
 
-    if(source_id == 2):
-        # TODO
-        print("Unfortunately this feature is not yet supported!")
     response = ""
     if data: 
         response = client.upload(data)
@@ -112,9 +109,9 @@ if __name__=="__main__":
     client = Client()
     while True:
         upload_screen = ("Where do you want to upload data from?",
-            ("Local File","Sensor","Data Generated Heuristically"),
-            [upload_data]*3,
-            [(client,i) for i in range(3)])
+            ("Local File","Sensor"),
+            [upload_data]*2,
+            [(client,i) for i in range(2)])
 
         download_screen = ("What data do you want to download?",
             ("Get own data","Get another group's data","Get all data","Get raw Data"),
