@@ -3,6 +3,9 @@ Some utility methods to make the operating of a menu system slightly easier
 """
 
 def get_valid_input(msg, valid_input_msg, restriction, data_converter= lambda x: x):
+   """Prints msg until the input given can be converted to the data type given
+   by the data_converter and that data satisfies the restriction function
+   given. If data entered doesn't satisfy both these, print valid_input_msg"""
    choice = None
    while choice == None:
         try:
@@ -42,4 +45,10 @@ def execute_screen(msg, choices,methods,args,opening=False):
     if choice != -1:
         methods[choice](*args[choice]) # execute the method chosen
 
+def get_user_confirmation(msg):
+    """Get a user to either confirm or reject a request"""
+    return get_valid_input(
+        msg+ " (y/n) :", "Please enter either y or n", 
+        lambda x: x.lower().startswith("y") or
+        x.lower().startswith("n")).startswith("y")
 

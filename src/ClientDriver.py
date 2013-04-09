@@ -1,8 +1,12 @@
 from Client import Client
-from Menu import choose_screen, execute_screen, get_valid_input
-import sys
-import os
+from Menu import *
+import sys, os, datetime
 #TODO: error checking networking requests
+ACTIVE_GROUPS = [1,2,3]
+DATA_TYPES = ["light","temperature","humidity"]
+SERVER_DATA_LINE = "# Data from Server"
+HEADER_TO_DATA_TYPE = \
+{"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)","humidity":"(Absolute humidity)"}
 def capture_data(client, write_to_file=True):
     """Prompts to allow the capturing of data
     
@@ -19,23 +23,24 @@ def capture_data(client, write_to_file=True):
         file_path = raw_input("Please enter the file to write these results to. "+
         "Leave this line blank if you don't want results written to a file: ")
     write_to_file = not (file_path=="")
-    verbose = raw_input("Do you want results to be written to screen while "+
-    "recording? (y/n): ").lower().startswith("y")
+
+    verbose = get_user_confirmation("Do you want results to be written to screen while "+
+    "recording?")
     
     # Capture the data
     return client.capture_data(choice,verbose=verbose,
                      output_to_file=write_to_file, output_path=file_path)
 
-def render_local_data(client):
+def render_local_data(client, file_path=""):
     """Prompts user to give location of data to be rendered into html"""
-    file_path = get_valid_input("Path of results data file: ",
-            "Please input a file that exists", 
-            lambda x: os.path.isfile(x))
+    if not file_path:
+        file_path = get_valid_input("Path of results data file: ",
+                "Please input a file that exists", 
+                lambda x: os.path.isfile(x))
     
-    open_browser = get_valid_input("Do you want to open a web browser to view "+
-                         " this data? (y/n)", "Please enter either y or n", 
-                         lambda x: x.lower().startswith("y") or
-                         x.lower().startswith("n")).startswith("y")
+    open_browser = get_user_confirmation("Do you want to open a web browser to view "+
+                         " this data?") 
+    print("Rendering data")
     client.generate_graph_from_data_file(file_path, open_browser=open_browser)
 
 def upload_data(client, source_id):
@@ -67,32 +72,71 @@ def upload_data(client, source_id):
     print(response["result"])
     return response
 
-def get_data(client, group_id = -1):
+def get_group_data(client, group_id = -1):
     """Get the data of a specified group. 
     
     id = 0 means all groups
     id = -1 means this will prompt you to choose a valid group
     otherwise, this will try get the info for that group id
     """
-    # TODO support more granular group selection
-    if group_id==-1:
-        group_id = get_valid_input("Which group do you want to download from?"+
-                                        "Give their SQL id.",
-                                    "Please input a valid id", lambda x: x >= 0, int)
+    if group_id==-1: # pick group
+        group_id = get_valid_input("Which group do you want to download from? "+
+                                   "Give their SQL id: ",
+                                   "Please input a valid id", lambda x: x > 0, int)
+    
     group_ids = []
-    if group_id > 0:
+
+    if group_id > 0: # only a single group to be downloaded
         group_ids = [group_id]
-    else:
-        group_ids = [1,2,3] #TODO: make this a bit more general
+    else: # all groups need to be downloaded
+        group_ids = ACTIVE_GROUPS 
+    # download results
     response = client.download(group_ids = group_ids, types = ["light","temperatures","humidity"])
-    print(response["result"])
+    result = response["result"]
+
+    if get_user_confirmation("Save to files?"):
+        # format data appropriately for file writing
+
+        # a list of the form with each entry being a list of the format "time,
+        # value, group_id" for each data_type present in the list
+        data = [[[str(row["time"]),str(row["value"]),str(row["group_id"])] for row in result if row["type"] == t]
+                for t in DATA_TYPES]
+
+        # a list of csv data, each representing a different type of data
+        formatted_data = [(DATA_TYPES[i],"Time," + DATA_TYPES[i] + ",group_id\n" + "\n".join([",".join(row) for row
+                          in data[i]])) for i in range(len(data)) if data[i] != []]
+
+        # write the csv to files
+        for pair in formatted_data:
+            with open(pair[0] +" "+ str(datetime.datetime.now())+".csv","w") as f:
+                f.write("# Data from Server\n"+pair[1]) 
+
+    if get_user_confirmation("Display results?"):
+        # find all data_types present in the data
+        data_types_present = {row["type"] for row in result}
+        
+        # for each group, creat a graph representing its data
+        data_to_graph = [ 
+            {"dates":[row["time"] for row in result if
+            (row["type"]==data_type and row["group_id"] == g_id)],
+             "data": [{"name": "Group " + str(g_id), 
+                       "data":[row["value"] for row in result if 
+                              (row["group_id"] == g_id and row["type"] == data_type)]}],
+             "y_axis_legend": data_type,
+             "title": data_type+" of data queried from Group " + str(g_id),
+             "subtitle": "Source: Collection 3 Data",
+             "data_type": HEADER_TO_DATA_TYPE[data_type]
+            }
+            for data_type in data_types_present for g_id in group_ids]
+        
+        # Generate the graphs
+        client.generate_graphs(data=data_to_graph,open_browser=True,feedback=True)
     return response
 
 def get_raw_data(client):
     """Get the raw data from server"""
-    query = raw_input("What do you want to get from the server? #TODO: figure"+
-    " out wtf raw data is")
-    return client.download(query)
+    query = raw_input("TODO")
+
 
 def get_logs(client):
     """Get log data from the server"""
@@ -115,12 +159,12 @@ if __name__=="__main__":
 
         download_screen = ("What data do you want to download?",
             ("Get own data","Get another group's data","Get all data","Get raw Data"),
-            [get_data]*3+[get_raw_data],
+            [get_group_data]*3+[get_raw_data],
             ((client,2),(client,-1),(client,0),(client)))
 
         opening_screen = ("Welcome to Sensor Data Client! What would you like to "+
             "do?",
-            ("Capture Sensor Data","Display local data","Upload Data to Server","Download Data from Server","Get Server Logs","Ping Server","Exit"),
+            ("Capture Sensor Data","Display local data captured from a sensor","Upload Data to Server","Download Data from Server","Get Server Logs","Ping Server","Exit"),
             [capture_data,render_local_data,execute_screen,execute_screen,get_logs,ping,sys.exit],
             ([client],[client],upload_screen,download_screen,[client],[client],[]))
 

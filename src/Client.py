@@ -9,8 +9,9 @@ RESULTS_FOOTER = "@FOOTER_CONTENTS"
 QUERY_NUMBER = "@QUERY_NUMBER"
 CONTAINER_TOKEN = "@CONTAINER_CONTENTS"
 GRAPH_TOKEN = "@HIGHCHARTS_SETUP"
-DATA_TYPES = {"Temp":"(\u00b0C)","Light":"(Lumens)"}
+HEADER_TO_DATA_TYPE = {"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)"}
 HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
+SERVER_DATA_LINE = "# Data from Server"
 class Client:
  
     def __init__(self, server_name = "197.85.191.195", server_port = 3000,
@@ -21,7 +22,7 @@ class Client:
         self.serial_dump_path="./serialdump-linux"
         self.headings = "Temp,Light"
         self.group_id = group_id
-    
+
     def generate_graph_from_data_file(self, path, open_browser=False,
     feedback=True):
         """
@@ -29,22 +30,35 @@ class Client:
         generate graphs representing its data
         """
         with open(path) as f:
-            headers = f.readline().split(",") # first line of csv is headers
-            indep_var = headers[0].strip() # independant variable  
-            dep_var = [i.strip() for i in headers[1:]]  # dependant variables
-            data = [line.strip().split(",") for line in f.readlines()]
-            dates = [row[0] for row in data]
-            self.generate_graphs(data=
-                        [
-                            {"dates":dates,
-                            "data":[{"name":"Data recorded by Collection 3",
-                                     "data":[float(row[i+1]) for row in data]}],
-                            "y_axis_legend": dep_var[i],
-                            "title": dep_var[i]+ " of Data Recorded",
-                            "subtitle": "Source: Collection 3 Data",
-                            "data_type":DATA_TYPES[dep_var[i]]}
-                        for i in range(len(dep_var))],
-                    open_browser=open_browser,feedback=feedback)
+            first_line = f.readline()
+
+            # as sensor csv files and data files downloaded from the server
+            # have different data formats, we must differentiate between them.
+
+            # A better solution would be to standardise the data format, but as
+            # we don't have access to the sensors, we don't want to possibly
+            # break the code that deals with them and so we have to keep this
+            # legacy code.
+            if first_line == SERVER_DATA_LINE:
+                print("TODO")
+                pass
+            else: # Sensor data 
+                headers = first_line.split(",") # first line of csv is headers
+                indep_var = headers[0].strip() # independant variable  
+                dep_var = [i.strip() for i in headers[1:]]  # dependant variables
+                data = [line.strip().split(",") for line in f.readlines()]
+                dates = [row[0] for row in data]
+                self.generate_graphs(data=
+                            [
+                                {"dates":dates,
+                                "data":[{"name":"Data recorded by Collection 3",
+                                         "data":[float(row[i+1]) for row in data]}],
+                                "y_axis_legend": dep_var[i],
+                                "title": dep_var[i]+ " of Data Recorded",
+                                "subtitle": "Source: Collection 3 Data",
+                                "data_type":HEADER_TO_DATA_TYPE[dep_var[i]]}
+                            for i in range(len(dep_var))],
+                        open_browser=open_browser,feedback=feedback)
 
     def generate_graphs(self,data=[],open_browser=False,feedback=True):
         """
