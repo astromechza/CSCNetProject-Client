@@ -137,6 +137,7 @@ class Client:
 
     def download(self,group_ids = [1], time_from="", time_to="",
                  types = ["light","temperatures","humidity"]):
+
         """Fetches all records for a given query from the server"""
         params ={"group_ids":group_ids,"types":types}
         if time_from != "":
@@ -145,15 +146,16 @@ class Client:
             params["time_to"] = time_to
         return self.send_data("query_readings",params)
 
-    def get_logs(self,log_type):
-        """
-        Get log data from the server
-        log_type = 0: All logs
-        log_type = 1: Uploading logs
-        log_type = 2: Downloading logs
-        """
-        # TODO
-        print ("log download still needs to be implemented")
+    def get_logs(self,number_of_logs=20,group_ids=[],time_from="",time_to=""):
+        """Get log data from the server"""
+        params = {"limit":number_of_logs}
+        if group_ids:
+            params["group_ids"] = group_ids
+        if time_from:
+            params["time_from"] = time_from
+        if time_to:
+            params["time_to"] = time_to
+        return self.send_data("query_logs",params)
 
     def send_data(self,method,params,verbose=False):
         """Send data over a socket"""

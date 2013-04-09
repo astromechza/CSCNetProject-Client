@@ -56,6 +56,10 @@ class TestClient(unittest.TestCase):
         """Tests if client can download  data with multiple group ids from
         server"""
         self.assertTrue(self.c.download(group_ids=[1,3])["result"][0])
+
+    def test_download_logs(self):
+        """Tests if client can download logs from the server"""
+        self.assertTrue(self.c.get_logs()["result"]["lines"])
     # Don't want to fill the server with repeated data
     """
     def test_upload(self):

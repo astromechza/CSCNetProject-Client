@@ -97,14 +97,9 @@ def get_raw_data(client):
     " out wtf raw data is")
     return client.download(query)
 
-def get_logs(client,log_type):
-    """
-    Get log data from the server
-    log_type = 0: All logs
-    log_type = 1: Uploading logs
-    log_type = 2: Downloading logs
-    """
-    return client.get_logs(log_type)
+def get_logs(client):
+    """Get log data from the server"""
+    print("TODO")
 
 def ping(client):
     """Pings the server"""
@@ -126,15 +121,10 @@ if __name__=="__main__":
             [get_data]*3+[get_raw_data],
             ((client,2),(client,-1),(client,0),(client)))
 
-        get_log_screen = ("What log information do you want?",
-            ("All the logs", "All the upload logs", "All the download logs"),
-            [get_logs]*3,
-            [(client,i) for i in range(3)])
-
         opening_screen = ("Welcome to Sensor Data Client! What would you like to "+
             "do?",
             ("Capture Sensor Data","Display local data","Upload Data to Server","Download Data from Server","Get Server Logs","Ping Server","Exit"),
-            [capture_data,render_local_data,execute_screen,execute_screen,execute_screen,ping,sys.exit],
-            ([client],[client],upload_screen,download_screen,get_log_screen,[client],[]))
+            [capture_data,render_local_data,execute_screen,execute_screen,get_logs,ping,sys.exit],
+            ([client],[client],upload_screen,download_screen,[client],[client],[]))
 
         execute_screen(*opening_screen,opening=True)
