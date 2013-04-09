@@ -12,12 +12,15 @@ CONTAINER_TOKEN = "@CONTAINER_CONTENTS"
 GRAPH_TOKEN = "@HIGHCHARTS_SETUP"
 DATA_TYPES = {"Temp":"(\u00b0C)","Light":"(Lumens)"}
 class Client:
-    def __init__(self, server_name = "nightmare.cs.uct.ac.za", server_port = 3000):
+ 
+    def __init__(self, server_name = "197.85.191.195", server_port = 3000,
+    group_id=2):
         self.server_name = server_name
         self.server_port = server_port
         self.port_address="/dev/ttyUSB0"
         self.serial_dump_path="./serialdump-linux"
         self.headings = "Temp,Light"
+        self.group_id = group_id
     
     def generate_graph_from_data_file(self, path, open_browser=False,
     feedback=True):
@@ -138,9 +141,9 @@ class Client:
         # TODO
         print ("log download still needs to be implemented")
 
-    def send_data(self,query,verbose=False):
+    def send_data(self,method,params,verbose=False):
         """Send data over a socket"""
-
+        query = json.dumps({"method":method,"params":params, "group_id":self.group_id})
         client_socket = socket(AF_INET, SOCK_STREAM)
         if verbose:
             print("Socket made")
@@ -167,7 +170,7 @@ class Client:
 
     def ping_server(self):
         """Pings the server to ensure connection is possible"""
-        return self.send_data(json.dumps({"method":"ping","params":[]}))
+        return self.send_data("ping",[])
         
 
 

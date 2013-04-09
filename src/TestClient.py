@@ -41,7 +41,7 @@ class TestClient(unittest.TestCase):
     
     def test_generating_graph_from_local(self):
         """Tests if client can rendering graphs from a local file"""
-        self.c.generate_graph_from_data_file("test_data.csv",feedback=False);
+        self.c.generate_graph_from_data_file("data/test_data.csv",feedback=False);
         self.validate_results()
 
     def test_ping(self):

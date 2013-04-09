@@ -99,6 +99,8 @@ def get_logs(client,log_type):
     return client.get_logs(log_type)
 
 def ping(client):
+    """Pings the server"""
+    #TODO: error checking
     print("ping")
     print(client.ping_server()["result"])
 
