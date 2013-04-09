@@ -43,6 +43,9 @@ class TestClient(unittest.TestCase):
         """Tests if client can rendering graphs from a local file"""
         self.c.generate_graph_from_data_file("test_data.csv",feedback=False);
         self.validate_results()
+
+    def test_ping(self):
+        self.assertTrue(self.c.ping_server()["result"]=="pong")
         
     # These require a sensor connected to run
     """

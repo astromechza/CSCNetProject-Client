@@ -1,5 +1,8 @@
 import json, webbrowser, os, datetime
 from punix import Punix
+from socket import *
+import time
+
 RESULTS_DATA_PATH = "templates/results.html"
 GRAPH_DATA_PATH = "templates/graph.js"
 RESULTS_JSON_STRING = "@JSON_QUERY_DATA_STRING"
@@ -9,7 +12,9 @@ CONTAINER_TOKEN = "@CONTAINER_CONTENTS"
 GRAPH_TOKEN = "@HIGHCHARTS_SETUP"
 DATA_TYPES = {"Temp":"(\u00b0C)","Light":"(Lumens)"}
 class Client:
-    def __init__(self):
+    def __init__(self, server_name = "nightmare.cs.uct.ac.za", server_port = 3000):
+        self.server_name = server_name
+        self.server_port = server_port
         self.port_address="/dev/ttyUSB0"
         self.serial_dump_path="./serialdump-linux"
         self.headings = "Temp,Light"
@@ -132,3 +137,37 @@ class Client:
         """
         # TODO
         print ("log download still needs to be implemented")
+
+    def send_data(self,query,verbose=False):
+        """Send data over a socket"""
+
+        client_socket = socket(AF_INET, SOCK_STREAM)
+        if verbose:
+            print("Socket made")
+            print("Connecting to Server")
+        client_socket.connect((self.server_name, self.server_port))
+        if verbose:
+            print("Connected to Server")
+            print("Sending info")
+        client_socket.send(query+"\n")
+        if verbose: 
+            print("Sent info")
+            print("Receiving data")
+        reply = []
+        running = True
+        while running:
+                data = client_socket.recv(1024)
+                reply.append(data)
+                if data.endswith("\n"): # json terminates with \n
+                    running = False
+        client_socket.close()
+        if verbose:
+            print("Received data, closed socket")
+        return json.loads("".join(reply))
+
+    def ping_server(self):
+        """Pings the server to ensure connection is possible"""
+        return self.send_data(json.dumps({"method":"ping","params":[]}))
+        
+
+
