@@ -9,7 +9,8 @@ RESULTS_FOOTER = "@FOOTER_CONTENTS"
 QUERY_NUMBER = "@QUERY_NUMBER"
 CONTAINER_TOKEN = "@CONTAINER_CONTENTS"
 GRAPH_TOKEN = "@HIGHCHARTS_SETUP"
-HEADER_TO_DATA_TYPE = {"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)"}
+HEADER_TO_DATA_TYPE = \
+{"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)","humidity":"(Absolute humidity)"}
 HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
 class Client:
@@ -22,6 +23,39 @@ class Client:
         self.serial_dump_path="./serialdump-linux"
         self.headings = "Temp,Light"
         self.group_id = group_id
+
+    def generate_graph_from_results(self,result, open_browser=False):
+        """
+        Given an arrray of dictionaries of the form
+            {
+            * 'group_ids' : integer representing the group number,
+            * 'value' => the value of the reading,
+            * 'type' => string of type,
+            * 'time' => iso date string
+            * }
+        Generate a graphs representing the data
+        """
+        # find all data_types present in the data
+        data_types_present = {row["type"] for row in result}
+        # find all the groups present in the data
+        group_ids = {row["group_id"] for row in result}
+        # for each group, creat a graph representing its data
+        data_to_graph = [ 
+            {"dates":[row["time"] for row in result if
+            (row["type"]==data_type and row["group_id"] == g_id)],
+             "data": [{"name": "Group " + str(g_id), 
+                       "data":[row["value"] for row in result if 
+                              (row["group_id"] == g_id and row["type"] == data_type)]}],
+             "y_axis_legend": data_type,
+             "title": data_type+" of data queried from Group " + str(g_id),
+             "subtitle": "Source: Collection 3 Data",
+             "data_type": HEADER_TO_DATA_TYPE[data_type]
+            }
+            for data_type in data_types_present for g_id in group_ids]
+        
+        # Generate the graphs
+        self.generate_graphs(data=data_to_graph,open_browser=True,feedback=True)
+        
 
     def generate_graph_from_data_file(self, path, open_browser=False,
     feedback=True):
@@ -39,9 +73,23 @@ class Client:
             # we don't have access to the sensors, we don't want to possibly
             # break the code that deals with them and so we have to keep this
             # legacy code.
-            if first_line == SERVER_DATA_LINE:
-                print("TODO")
-                pass
+            if first_line.strip() == SERVER_DATA_LINE.strip():
+                headers = f.readline().split(",") # first line of csv is headers
+
+                data_type = headers[1].strip() # middle value is always data
+                                               # type
+
+                csvreader = csv.reader(f.readlines(), delimiter=',', quotechar='"')
+
+                # since this was generated from a download server result, let's
+                # reformat this data like a server result and use that to graph
+                # it
+                result = [{"group_id":row[2].strip(),
+                           "value":float(row[1].strip()),
+                           "type":data_type,
+                           "time":row[0].strip()} for row in csvreader]
+
+                self.generate_graph_from_results(result,open_browser)
             else: # Sensor data 
                 headers = first_line.split(",") # first line of csv is headers
                 indep_var = headers[0].strip() # independant variable  

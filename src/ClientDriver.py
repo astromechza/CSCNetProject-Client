@@ -112,25 +112,8 @@ def get_group_data(client, group_id = -1):
                 f.write("# Data from Server\n"+pair[1]) 
 
     if get_user_confirmation("Display results?"):
-        # find all data_types present in the data
-        data_types_present = {row["type"] for row in result}
-        
-        # for each group, creat a graph representing its data
-        data_to_graph = [ 
-            {"dates":[row["time"] for row in result if
-            (row["type"]==data_type and row["group_id"] == g_id)],
-             "data": [{"name": "Group " + str(g_id), 
-                       "data":[row["value"] for row in result if 
-                              (row["group_id"] == g_id and row["type"] == data_type)]}],
-             "y_axis_legend": data_type,
-             "title": data_type+" of data queried from Group " + str(g_id),
-             "subtitle": "Source: Collection 3 Data",
-             "data_type": HEADER_TO_DATA_TYPE[data_type]
-            }
-            for data_type in data_types_present for g_id in group_ids]
-        
-        # Generate the graphs
-        client.generate_graphs(data=data_to_graph,open_browser=True,feedback=True)
+            client.generate_graph_from_results(result)
+    
     return response
 
 def get_raw_data(client):
