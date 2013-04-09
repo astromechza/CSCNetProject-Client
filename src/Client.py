@@ -135,11 +135,15 @@ class Client:
 
         return self.send_data("new_readings",{"readings":results})
 
-    def download(self,query):
+    def download(self,group_ids = [1], time_from="", time_to="",
+                 types = ["light","temperatures","humidity"]):
         """Fetches all records for a given query from the server"""
-        
-        print ("download still needs to be implemented")
-        # TODO
+        params ={"group_ids":group_ids,"types":types}
+        if time_from != "":
+            params["time_from"] = time_from
+        if time_to != "":
+            params["time_to"] = time_to
+        return self.send_data("query_readings",params)
 
     def get_logs(self,log_type):
         """

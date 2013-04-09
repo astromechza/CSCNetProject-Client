@@ -45,9 +45,18 @@ class TestClient(unittest.TestCase):
         self.validate_results()
 
     def test_ping(self):
+        """Tests if client can reach server"""
         self.assertTrue(self.c.ping_server()["result"]=="pong")
+    
+    def test_download(self):
+        """Tests if client can download data from server"""
+        self.assertTrue(self.c.download()["result"][0])
 
-    # Don't want to fill the server with dirty data
+    def test_multiple_group_downloads(self):
+        """Tests if client can download  data with multiple group ids from
+        server"""
+        self.assertTrue(self.c.download(group_ids=[1,3])["result"][0])
+    # Don't want to fill the server with repeated data
     """
     def test_upload(self):
         with open("data/test_data.csv") as f:

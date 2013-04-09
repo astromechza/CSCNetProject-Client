@@ -81,9 +81,15 @@ def get_data(client, group_id = -1):
     if group_id==-1:
         group_id = get_valid_input("Which group do you want to download from?"+
                                         "Give their SQL id.",
-                                   "Please input a valid id", lambda x: x >= 0, int)
-    query = ""#TODO: Give query here that gives this data
-    return client.download(query)
+                                    "Please input a valid id", lambda x: x >= 0, int)
+    group_ids = []
+    if group_id > 0:
+        group_ids = [group_id]
+    else:
+        group_ids = [1,2,3] #TODO: make this a bit more general
+    response = client.download(group_ids = group_ids, types = ["light","temperatures","humidity"])
+    print(response["result"])
+    return response
 
 def get_raw_data(client):
     """Get the raw data from server"""
