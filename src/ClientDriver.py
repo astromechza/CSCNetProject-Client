@@ -131,4 +131,4 @@ if __name__=="__main__":
             [capture_data,render_local_data,execute_screen,execute_screen,execute_screen,ping,sys.exit],
             ([client],[client],upload_screen,download_screen,get_log_screen,[client],[]))
 
-        execute_screen(*opening_screen)
+        execute_screen(*opening_screen,opening=True)

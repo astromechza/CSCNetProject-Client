@@ -14,7 +14,7 @@ def get_valid_input(msg, valid_input_msg, restriction, data_converter= lambda x:
             print(valid_input_msg)
    return choice
 
-def choose_screen(msg, choices):
+def choose_screen(msg, choices, opening=False):
     """
     An easy way to allow a user to choice an option from a screen
 
@@ -26,21 +26,20 @@ def choose_screen(msg, choices):
     choice = -1 # the option the user chooses
     while(choice < 0):
         # print options
+        msg = ""
+        if not opening:
+            msg += "(0) Back to main screen\n"
         for i in range(1,len(choices)+1):
-            print "("+str(i)+") :",choices[i-1]
+            msg += "("+str(i)+"): "+choices[i-1] + "\n"
         # try to get valid input
-        try:
-            choice = int(raw_input());
-            if not (0 < choice <= len(choices)):
-                choice = -1
-                raise ValueError()
-        except ValueError:
-            print ("Choice not a valid integer")
+        choice = get_valid_input(msg,"Please choice a valid menu option using the "+
+        "numbers on the left",lambda x: x >= 0,int)
     return choice-1 # user enters in 1-indexed value
 
-def execute_screen(msg, choices,methods,args):
+def execute_screen(msg, choices,methods,args,opening=False):
     """An easy way to execute a choice given by a user at a particular screen"""
-    choice = choose_screen(msg,choices) # user choice
-    methods[choice](*args[choice]) # execute the method chosen
+    choice = choose_screen(msg,choices,opening) # user choice
+    if choice != -1:
+        methods[choice](*args[choice]) # execute the method chosen
 
 
