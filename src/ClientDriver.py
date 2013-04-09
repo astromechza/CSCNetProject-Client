@@ -94,6 +94,74 @@ def get_group_data(client, group_id = -1):
     response = client.download(group_ids = group_ids, types = ["light","temperatures","humidity"])
     result = response["result"]
 
+    # allow user to see results 
+    process_download_result(result)
+    return response
+
+
+def get_raw_data(client):
+    """Get the raw data from server"""
+    # capture the groups to search for
+    choice = "NOT EMPTY"
+    group_ids = set()
+    while str(choice).strip():
+        choice = get_valid_input("Enter a group number to download (press "+
+        "enter when you want to stop): ",
+                    "Please input a positive integer", 
+                    lambda x: True if x == "" else x > 0,
+                    lambda x: x if x=="" else int(x))
+        if choice: group_ids.add(choice)
+    if group_ids == set():
+        print("No groups selected, going back to main menu")
+        return;
+    
+    ids = sorted(list(group_ids))
+
+    # capture times to start from or end from
+    # TODO: If energetic, validate this input
+    time_from = raw_input("Enter from what time the results must start from "+
+                          "(milliseconds since epoch or ISO Date): ")
+    time_to = raw_input("Enter what time you want the results to end on"+
+                        "(milliseconds since epoch or ISO Date): ")
+    
+    # capture data types wanted
+    choice = "NOT EMPTY"
+    types = set()
+    while str(choice).strip():
+        choice = get_valid_input("Enter a data type "+
+        "([T]emperature,[H]umidity,[L]ight) to download "+
+        "(press enter when you want to stop): ",
+                    "Please input one of the letters representing choices above", 
+                    lambda x: (x=="" or x[0].lower() in ["t","h","l"]))
+        if choice: types.add(choice)
+    if types == set():
+        print("No data types selected, going back to main menu")
+        return;
+    # get data types from selections
+    data_types = filter(lambda i: i[0] in types,DATA_TYPES)
+    
+    # only pass the parameters that aren't empty
+    params = dict()
+    if ids != []:
+        params["group_ids"] = ids
+    if time_from != "":
+        params["time_from"] = time_from
+    if time_to != "":
+        params["time_to"] = time_to
+    if data_types != []:
+        params["types"] = data_types
+
+    # download results
+    response = client.download(**params)
+    result = response["result"]
+
+    # allow user to see results 
+    process_download_result(result)
+    return response;
+
+def process_download_result(result):
+    """Given a result from a download request to the server, allow the user to
+    save and view it"""
     if get_user_confirmation("Save to files?"):
         # format data appropriately for file writing
 
@@ -113,13 +181,6 @@ def get_group_data(client, group_id = -1):
 
     if get_user_confirmation("Display results?"):
             client.generate_graph_from_results(result)
-    
-    return response
-
-def get_raw_data(client):
-    """Get the raw data from server"""
-    query = raw_input("TODO")
-
 
 def get_logs(client):
     """Get log data from the server"""
@@ -143,7 +204,7 @@ if __name__=="__main__":
         download_screen = ("What data do you want to download?",
             ("Get own data","Get another group's data","Get all data","Get raw Data"),
             [get_group_data]*3+[get_raw_data],
-            ((client,2),(client,-1),(client,0),(client)))
+            ((client,2),(client,-1),(client,0),[client]))
 
         opening_screen = ("Welcome to Sensor Data Client! What would you like to "+
             "do?",

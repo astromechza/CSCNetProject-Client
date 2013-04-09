@@ -123,7 +123,7 @@ class Client:
         subtitle: the subtitle to give the graph
         data_type: the data type the graph is showing, e.g. degrees celsius.
         """
-
+        # TODO: generate tables of data along with graphs
         graph_source = "" # the source code for the graph js
         with open(GRAPH_DATA_PATH) as f:
             for line in f:
