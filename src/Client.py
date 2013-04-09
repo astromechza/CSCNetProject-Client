@@ -1,7 +1,6 @@
-import json, webbrowser, os, datetime
+import json, webbrowser, os, datetime, csv
 from punix import Punix
 from socket import *
-import time
 
 RESULTS_DATA_PATH = "templates/results.html"
 GRAPH_DATA_PATH = "templates/graph.js"
@@ -11,6 +10,7 @@ QUERY_NUMBER = "@QUERY_NUMBER"
 CONTAINER_TOKEN = "@CONTAINER_CONTENTS"
 GRAPH_TOKEN = "@HIGHCHARTS_SETUP"
 DATA_TYPES = {"Temp":"(\u00b0C)","Light":"(Lumens)"}
+HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 class Client:
  
     def __init__(self, server_name = "197.85.191.195", server_port = 3000,
@@ -122,12 +122,22 @@ class Client:
 
     def upload(self, data):
         """Uploads the data to the stored server"""
-        print ("upload still needs to be implemented")
-        # TODO
-        pass
+        lines = data.split("\n")
+        csvreader = csv.reader(lines, delimiter=',', quotechar='"')
+        csvreader.next() # skip headers
+        types = [HEADING_TO_FULL_NAME[h.strip()] for h in lines[0].split(",")[1:]]
+        results = []
+        # TODO: do this in increments of 100s to make give user feedback
+        for row in csvreader:
+            if row: # skip empty rows
+                for i in range(1,3):
+                    results.append({"time":int(float(row[0])*1000),"type":types[i-1],"value":float(row[i])})
+
+        return self.send_data("new_readings",{"readings":results})
 
     def download(self,query):
         """Fetches all records for a given query from the server"""
+        
         print ("download still needs to be implemented")
         # TODO
 

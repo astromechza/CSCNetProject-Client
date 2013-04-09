@@ -46,7 +46,14 @@ class TestClient(unittest.TestCase):
 
     def test_ping(self):
         self.assertTrue(self.c.ping_server()["result"]=="pong")
-        
+
+    # Don't want to fill the server with dirty data
+    """
+    def test_upload(self):
+        with open("data/test_data.csv") as f:
+            self.c.upload("".join(f.readlines()))
+    """
+
     # These require a sensor connected to run
     """
     def test_data_capture_return(self):

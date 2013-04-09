@@ -2,6 +2,7 @@ from Client import Client
 from Menu import choose_screen, execute_screen, get_valid_input
 import sys
 import os
+#TODO: error checking networking requests
 def capture_data(client, write_to_file=True):
     """Prompts to allow the capturing of data
     
@@ -66,7 +67,7 @@ def upload_data(client, source_id):
     response = ""
     if data: 
         response = client.upload(data)
-
+    print(response["result"])
     return response
 
 def get_data(client, group_id = -1):
@@ -76,6 +77,7 @@ def get_data(client, group_id = -1):
     id = -1 means this will prompt you to choose a valid group
     otherwise, this will try get the info for that group id
     """
+    # TODO support more granular group selection
     if group_id==-1:
         group_id = get_valid_input("Which group do you want to download from?"+
                                         "Give their SQL id.",
@@ -100,9 +102,10 @@ def get_logs(client,log_type):
 
 def ping(client):
     """Pings the server"""
-    #TODO: error checking
     print("ping")
-    print(client.ping_server()["result"])
+    response = client.ping_server()
+    print(response["result"])
+    return response
 
 if __name__=="__main__":
     client = Client()
