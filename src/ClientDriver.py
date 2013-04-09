@@ -184,7 +184,51 @@ def process_download_result(result):
 
 def get_logs(client):
     """Get log data from the server"""
-    print("TODO")
+    # capture the groups to search for
+    choice = "NOT EMPTY"
+    group_ids = set()
+    while str(choice).strip():
+        choice = get_valid_input("Enter a group number to download (press "+
+        "enter when you want to stop): ",
+                    "Please input a positive integer", 
+                    lambda x: True if x == "" else x > 0,
+                    lambda x: x if x=="" else int(x))
+        if choice: group_ids.add(choice)
+    if group_ids == set():
+        print("No groups selected, going back to main menu")
+        return;
+    
+    ids = sorted(list(group_ids))
+
+    # capture times to start from or end from
+    # TODO: If energetic, validate this input
+    time_from = raw_input("Enter from what time the results must start from "+
+                          "(milliseconds since epoch or ISO Date): ")
+    time_to = raw_input("Enter what time you want the results to end on"+
+                        "(milliseconds since epoch or ISO Date): ")
+    
+    no_logs = get_valid_input("Enter a number of logs to download:",
+                "Please input a positive integer", 
+                    lambda x: x > 0,
+                    int)
+    response =  client.get_logs(number_of_logs=no_logs,group_ids=ids,time_from=time_from,time_to=time_to)
+    result = response["result"]["lines"]
+    # format data appropriately for file writing
+
+    # a list of the form with each entry being a list of the format "time,
+    # value, group_id" for each data_type present in the list
+    data = [[str(row["time"]),str(row["action"]),str(row["group_id"])] for row in result]
+    # a list of csv data, each representing a different type of data
+    formatted_data = "time,action,group_id\n"+ "\n".join([",".join(row) for row
+                      in data])
+
+    if get_user_confirmation("Save to files?"):
+            # write the csv to files
+            with open("log "+ str(datetime.datetime.now())+".csv","w") as f:
+                f.write("# Log from Server\n"+formatted_data) 
+
+    if get_user_confirmation("Display results?"):
+            print(formatted_data)
 
 def ping(client):
     """Pings the server"""
