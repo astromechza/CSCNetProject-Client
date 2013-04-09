@@ -36,7 +36,7 @@ def choose_screen(msg, choices, opening=False):
             msg += "("+str(i)+"): "+choices[i-1] + "\n"
         # try to get valid input
         choice = get_valid_input(msg,"Please choice a valid menu option using the "+
-        "numbers on the left",lambda x: x >= 0,int)
+        "numbers on the left",lambda x:len(choices)>= x >= 0,int)
     return choice-1 # user enters in 1-indexed value
 
 def execute_screen(msg, choices,methods,args,opening=False):
