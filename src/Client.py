@@ -17,7 +17,7 @@ HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
 
 class Client:
-    def __init__(self, server_name = "nightmare.cs.uct.ac.za", server_port = 3000,
+    def __init__(self, server_name = "197.85.191.195", server_port = 3000,
     group_id=2):
         self.server_name = server_name
         self.server_port = server_port
@@ -266,4 +266,15 @@ class Client:
     def ping_server(self):
         """Pings the server to ensure connection is possible"""
         return self.send_data("ping",[])
-        
+
+    def get_aggregation(self, aggregation_type, data_type, group_id=None,
+                        time_from="", time_to=""):
+        """Fetches aggregated versions of data"""
+        params = {"aggregation":aggregation_type, "type":data_type}
+        if group_id != None:
+            params["group_id"] = group_id
+        if time_from != "":
+            params["time_from"] = time_from
+        if time_to != "":
+            params["time_to"] = time_to
+        return self.send_data("aggregate",params)

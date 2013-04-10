@@ -231,6 +231,41 @@ def ping(client):
     print(response["result"])
     return response
 
+def get_aggregated_data(client, agg_type):
+    """Gets aggregated data from the server of the type specified"""
+    
+    # capture data types wanted
+    data_type = get_valid_input("Enter a data type "+
+    "([T]emperature,[H]umidity,[L]ight) to download "+
+    "(press enter to go back to main menu): ",
+                "Please input one of the letters representing choices above", 
+                lambda x: (x=="" or x[0].lower() in ["t","h","l"]))
+    if data_type == "":
+        print("No data types selected, going back to main menu")
+        return;
+    # get data types from selections
+    data_type = filter(lambda i: i[0] == data_type,DATA_TYPES)[0]
+
+    # get the group id
+    group_id = get_valid_input("Enter a group number to download (press "+
+    "enter when you want to stop): ",
+                "Please input a positive integer", 
+                lambda x: True if x == "" else x > 0,
+                lambda x: x if x=="" else int(x))
+    if group_id == "":
+        print("No groups selected, going back to main menu")
+        return;
+
+    # capture times to start from and end from
+    time_from = get_timestamp("Enter from what time the results must start from.")
+    time_to = get_timestamp("Enter what time you want the results to end on.")
+
+
+    # get and return data
+    response = client.get_aggregation(agg_type, data_type, group_id,time_from, time_to)
+    print(agg_type + ":" + str(response["result"]))
+    return response
+
 if __name__=="__main__":
     client = Client()
     while True:
@@ -243,11 +278,23 @@ if __name__=="__main__":
             ("Get own data","Get another group's data","Get all data","Get raw Data"),
             [get_group_data]*3+[get_raw_data],
             ((client,2),(client,-1),(client,0),[client]))
+        agg_screen=("Which aggregation do you want to get?",
+            ("count (how many data points)",
+            "mean (average of the data points)",
+            "min (minimum of the data points)",
+            "max (maximum of the data points)",
+            "standard deviation",
+            "mode (most frequently recorded data point)",
+            "median (the 'middle' data point)"),
+            [get_aggregated_data]*7,
+            zip([client]*7,["count","mean","min","max","std","mode","median"]))
 
         opening_screen = ("Welcome to Sensor Data Client! What would you like to "+
             "do?",
-            ("Capture Sensor Data","Display local data captured from a sensor","Upload Data to Server","Download Data from Server","Get Server Logs","Ping Server","Exit"),
-            [capture_data,render_local_data,execute_screen,execute_screen,get_logs,ping,sys.exit],
-            ([client],[client],upload_screen,download_screen,[client],[client],[]))
+            ("Capture Sensor Data","Display local data captured from a "+
+            "sensor","Upload Data to Server","Download Data from Server","Get "+
+            "Aggregated amount from Server","Get Server Logs","Ping Server","Exit"),
+            [capture_data,render_local_data,execute_screen,execute_screen,execute_screen,get_logs,ping,sys.exit],
+            ([client],[client],upload_screen,download_screen,agg_screen,[client],[client],[]))
 
         execute_screen(*opening_screen,opening=True)
