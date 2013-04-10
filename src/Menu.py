@@ -1,3 +1,4 @@
+import datetime, time
 """
 Some utility methods to make the operating of a menu system slightly easier
 """
@@ -14,6 +15,8 @@ def get_valid_input(msg, valid_input_msg, restriction, data_converter= lambda x:
                 choice = None
                 raise ValueError()
         except ValueError:
+            print(valid_input_msg)
+        except TypeError:
             print(valid_input_msg)
    return choice
 
@@ -51,4 +54,14 @@ def get_user_confirmation(msg):
         msg+ " (y/n) :", "Please enter either y or n", 
         lambda x: x.lower().startswith("y") or
         x.lower().startswith("n")).startswith("y")
+
+def get_timestamp(msg):
+    """Get a user to enter an ISO time"""
+    return get_valid_input(msg+
+        " Please enter a timestamp in ISO format: Year-Month-Day"+
+        "Hour:Minute:Second, e.g. 2013-04-10 18:42:26. Press enter to skip:\n",
+        "Please enter a time in the ISO format or press enter to skip",
+        lambda x: True if x=="" else datetime.datetime.strptime(x,"%Y-%m-%d %H:%M:%S"),
+        lambda x: x if x=="" else str(datetime.datetime.strptime(x,"%Y-%m-%d %H:%M:%S"))
+    )
 

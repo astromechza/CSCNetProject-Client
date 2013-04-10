@@ -118,11 +118,8 @@ def get_raw_data(client):
     ids = sorted(list(group_ids))
 
     # capture times to start from or end from
-    # TODO: If energetic, validate this input
-    time_from = raw_input("Enter from what time the results must start from "+
-                          "(milliseconds since epoch or ISO Date): ")
-    time_to = raw_input("Enter what time you want the results to end on"+
-                        "(milliseconds since epoch or ISO Date): ")
+    time_from = get_timestamp("Enter from what time the results must start from.")
+    time_to = get_timestamp("Enter what time you want the results to end on.")
     
     # capture data types wanted
     choice = "NOT EMPTY"
@@ -201,11 +198,8 @@ def get_logs(client):
     ids = sorted(list(group_ids))
 
     # capture times to start from or end from
-    # TODO: If energetic, validate this input
-    time_from = raw_input("Enter from what time the results must start from "+
-                          "(milliseconds since epoch or ISO Date): ")
-    time_to = raw_input("Enter what time you want the results to end on"+
-                        "(milliseconds since epoch or ISO Date): ")
+    time_from = get_timestamp("Enter from what time the results must start from.")
+    time_to = get_timestamp("Enter what time you want the results to end on")
     
     no_logs = get_valid_input("Enter a number of logs to download:",
                 "Please input a positive integer", 
