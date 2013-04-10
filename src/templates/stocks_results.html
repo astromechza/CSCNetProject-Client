@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Query Results</title>
+		<script type="text/javascript" src="../lib/jquery.min.js"></script>
+		<script type="text/javascript">
+query_data = JSON.parse(@JSON_QUERY_DATA_STRING)
+@HIGHCHARTS_SETUP
+    </script>
+</head>
+<body>
+    <script src="../lib/highstocks/js/highstock.js"></script>
+    <script src="../lib/highstocks/js/modules/exporting.js"></script>
+    <div id="heading"><center><h1>Results of Query</h1><center></div>
+    <div id="container" style="min-width: 400px; margin: 0 auto">
+        @CONTAINER_CONTENTS
+    </div>
+    <div id="footer"><small> @FOOTER_CONTENTS</small> </div>
+</body>
+</html>
