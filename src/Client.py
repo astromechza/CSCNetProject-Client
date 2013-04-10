@@ -16,6 +16,7 @@ HEADER_TO_DATA_TYPE = \
 HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
 DEFAULT_SERVER = "197.85.191.195"
+
 class Client:
     def __init__(self, server_name = "197.85.191.195", server_port = 3000,
     group_id=2):
@@ -126,6 +127,26 @@ class Client:
         subtitle: the subtitle to give the graph
         data_type: the data type the graph is showing, e.g. degrees celsius.
         """
+        # due to the fact that mysql doesn't support milliseconds in iso time
+        # and some groups have multiple reads per second, we have to filter out
+        # some readings in order to make sure the graphs can be displayed. As
+        # the readings are taken in the same place as they're the same sensor,
+        # we can assume that the readings aren't really going to change. The
+        # other fix is to change the server side to take time as a long, but as
+        # this would break other client's the most sensible change, with almost
+        # no impact to the actual conclusions that can be taken to the
+        # readings, is just making sure there's only one value per second.
+        for data_set in data:
+            set_of_dates = set()
+            indices_to_keep = []
+            for i in range(len(data_set["dates"])):
+                date = data_set["dates"][i]
+                if not(date in set_of_dates): # not duplicate date
+                    indices_to_keep.append(i)
+                    set_of_dates.add(date)
+            for date_readings in data_set["data"]:
+                date_readings["data"] = [date_readings["data"][i] for i in indices_to_keep]
+
         # reformat the data so it's in the format highstocks wants
         for d in data:
             for name_and_reading in d["data"]:
@@ -139,13 +160,15 @@ class Client:
                         date= float(date)*1000 # wants milliseconds
                     except ValueError:
                         if(date.find(".") != -1):
-                            date = date[:date.find(".")]
+                            # database doesn't store milliseconds, so remove
+                            # them
+                            date = date[:date.find(".")] 
                         date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
                         date *= 1000 # wants milliseconds
                     date = int(date)
                     proc_readings.append([date,reading[i]])
                     name_and_reading["data"] = proc_readings
-        # TODO: generate tables of data along with graphs
+
         graph_source = "" # the source code for the graph js
         with open(GRAPH_DATA_PATH) as f:
             for line in f:
@@ -219,11 +242,13 @@ class Client:
 
         return self.send_data("new_readings",{"readings":results})
 
-    def download(self,group_ids = [1], time_from="", time_to="",
+    def download(self,group_ids = [], time_from="", time_to="",
                  types = ["light","temperatures","humidity"]):
 
         """Fetches all records for a given query from the server"""
-        params ={"group_ids":group_ids,"types":types}
+        params ={"types":types}
+        if group_ids != []:
+            params["group_ids"] = group_ids
         if time_from != "":
             params["time_from"] = time_from
         if time_to != "":
@@ -303,6 +328,3 @@ class Client:
         if time_to != "":
             params["time_to"] = time_to
         return self.send_data("aggregate",params)
-
-    def bad_method(self):
-        return self.send_data("made_up",[])

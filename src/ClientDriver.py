@@ -1,8 +1,6 @@
 from Client import Client
 from Menu import *
 import sys, os, datetime
-#TODO: error checking networking requests
-ACTIVE_GROUPS = [1,2,3]
 DATA_TYPES = ["light","temperature","humidity"]
 SERVER_DATA_LINE = "# Data from Server"
 HEADER_TO_DATA_TYPE = \
@@ -90,7 +88,7 @@ def get_group_data(client, group_id = -1):
     if group_id > 0: # only a single group to be downloaded
         group_ids = [group_id]
     else: # all groups need to be downloaded
-        group_ids = ACTIVE_GROUPS 
+        group_ids = [] # no specification means all groups 
     # download results
     response = client.download(group_ids = group_ids, types = ["light","temperatures","humidity"])
     result = response["result"]
