@@ -69,7 +69,8 @@ def upload_data(client, source_id):
     response = ""
     if data: 
         response = client.upload(data)
-    print(response["result"])
+    if response["result"]:
+        print(response["result"])
     return response
 
 def get_group_data(client, group_id = -1):
@@ -95,7 +96,8 @@ def get_group_data(client, group_id = -1):
     result = response["result"]
 
     # allow user to see results 
-    process_download_result(result)
+    if response["result"]:
+        process_download_result(result)
     return response
 
 
@@ -153,7 +155,8 @@ def get_raw_data(client):
     result = response["result"]
 
     # allow user to see results 
-    process_download_result(result)
+    if response["result"]:
+        process_download_result(result)
     return response;
 
 def process_download_result(result):
@@ -206,29 +209,31 @@ def get_logs(client):
                     lambda x: x > 0,
                     int)
     response =  client.get_logs(number_of_logs=no_logs,group_ids=ids,time_from=time_from,time_to=time_to)
-    result = response["result"]["lines"]
-    # format data appropriately for file writing
+    if response["result"]:
+        result = response["result"]["lines"]
+        # format data appropriately for file writing
 
-    # a list of the form with each entry being a list of the format "time,
-    # value, group_id" for each data_type present in the list
-    data = [[str(row["time"]),str(row["action"]),str(row["group_id"])] for row in result]
-    # a list of csv data, each representing a different type of data
-    formatted_data = "time,action,group_id\n"+ "\n".join([",".join(row) for row
-                      in data])
+        # a list of the form with each entry being a list of the format "time,
+        # value, group_id" for each data_type present in the list
+        data = [[str(row["time"]),str(row["action"]),str(row["group_id"])] for row in result]
+        # a list of csv data, each representing a different type of data
+        formatted_data = "time,action,group_id\n"+ "\n".join([",".join(row) for row
+                          in data])
 
-    if get_user_confirmation("Save to files?"):
-            # write the csv to files
-            with open("log "+ str(datetime.datetime.now())+".csv","w") as f:
-                f.write("# Log from Server\n"+formatted_data) 
+        if get_user_confirmation("Save to files?"):
+                # write the csv to files
+                with open("log "+ str(datetime.datetime.now())+".csv","w") as f:
+                    f.write("# Log from Server\n"+formatted_data) 
 
-    if get_user_confirmation("Display results?"):
-            print(formatted_data)
+        if get_user_confirmation("Display results?"):
+                print(formatted_data)
 
 def ping(client):
     """Pings the server"""
     print("ping")
     response = client.ping_server()
-    print(response["result"])
+    if response["result"]:
+        print(response["result"])
     return response
 
 def get_aggregated_data(client, agg_type):
@@ -263,7 +268,8 @@ def get_aggregated_data(client, agg_type):
 
     # get and return data
     response = client.get_aggregation(agg_type, data_type, group_id,time_from, time_to)
-    print(agg_type + ":" + str(response["result"]))
+    if response["result"]:
+        print(agg_type + ":" + str(response["result"]))
     return response
 
 if __name__=="__main__":

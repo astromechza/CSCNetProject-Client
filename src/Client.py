@@ -15,9 +15,9 @@ HEADER_TO_DATA_TYPE = \
 {"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)","humidity":"(Absolute humidity)"}
 HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
-
+DEFAULT_SERVER = "197.85.191.195"
 class Client:
-    def __init__(self, server_name = "197.85.191.195", server_port = 3000,
+    def __init__(self, server_name = "nightmare.cs.uct.ac.za", server_port = 3000,
     group_id=2):
         self.server_name = server_name
         self.server_port = server_port
@@ -238,30 +238,50 @@ class Client:
 
     def send_data(self,method,params,verbose=False):
         """Send data over a socket"""
+        # setup data for transfer
         query = json.dumps({"method":method,"params":params, "group_id":self.group_id})
-        client_socket = socket(AF_INET, SOCK_STREAM)
-        if verbose:
-            print("Socket made")
-            print("Connecting to Server")
-        client_socket.connect((self.server_name, self.server_port))
-        if verbose:
-            print("Connected to Server")
-            print("Sending info")
-        client_socket.send(query+"\n")
-        if verbose: 
-            print("Sent info")
-            print("Receiving data")
-        reply = []
-        running = True
-        while running:
-                data = client_socket.recv(1024)
-                reply.append(data)
-                if data.endswith("\n"): # json terminates with \n
-                    running = False
-        client_socket.close()
-        if verbose:
-            print("Received data, closed socket")
-        return json.loads("".join(reply))
+        client_socket = socket(AF_INET, SOCK_STREAM) # set socket to TCP
+        client_socket.settimeout(5) # to make sure client doesn't wait eternally
+        reply = [] # the lines of reply the server sends back
+
+        try:
+            if verbose:
+                print("Socket made")
+                print("Connecting to Server")
+            client_socket.connect((self.server_name, self.server_port))
+            if verbose:
+                print("Connected to Server")
+                print("Sending info")
+            client_socket.send(query+"\n")
+            if verbose: 
+                print("Sent info")
+                print("Receiving data")
+            running = True
+            while running:
+                    data = client_socket.recv(1024)
+                    reply.append(data)
+                    if data.endswith("\n"): # json terminates with \n
+                        running = False
+            if verbose:
+                print("Received data, closed socket")
+        except timeout:
+            print("Connection timed out")
+        finally:
+            client_socket.close()
+
+        response = {}
+        if reply: # data received, load object send
+            response = json.loads("".join(reply))
+        else: # data not recieved, default to error
+            response = {"result":"","error":"Server timed out"}
+
+        if "error" in response: # client has given an error
+            print("Error from server: " + response["error"])
+
+        if "result" in response:
+            if response["result"] == "":
+                print("No result to process from Server")
+        return response
 
     def ping_server(self):
         """Pings the server to ensure connection is possible"""
@@ -278,3 +298,6 @@ class Client:
         if time_to != "":
             params["time_to"] = time_to
         return self.send_data("aggregate",params)
+
+    def bad_method(self):
+        return self.send_data("made_up",[])
