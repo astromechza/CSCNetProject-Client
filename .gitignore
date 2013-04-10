@@ -1,5 +1,4 @@
 *.class
-lib/
 bin/
 *.swp
 __pycache__

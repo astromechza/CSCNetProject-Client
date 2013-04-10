@@ -1,9 +1,11 @@
-import json, webbrowser, os, datetime, csv
+import json, webbrowser, os, datetime, csv, time
 from punix import Punix
 from socket import *
 
-RESULTS_DATA_PATH = "templates/results.html"
-GRAPH_DATA_PATH = "templates/graph.js"
+#RESULTS_DATA_PATH = "templates/results.html"
+RESULTS_DATA_PATH = "templates/stocks_results.html"
+#GRAPH_DATA_PATH = "templates/graph.js"
+GRAPH_DATA_PATH = "templates/stocks_graph.js"
 RESULTS_JSON_STRING = "@JSON_QUERY_DATA_STRING"
 RESULTS_FOOTER = "@FOOTER_CONTENTS"
 QUERY_NUMBER = "@QUERY_NUMBER"
@@ -13,9 +15,9 @@ HEADER_TO_DATA_TYPE = \
 {"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)","humidity":"(Absolute humidity)"}
 HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
+
 class Client:
- 
-    def __init__(self, server_name = "197.85.191.195", server_port = 3000,
+    def __init__(self, server_name = "nightmare.cs.uct.ac.za", server_port = 3000,
     group_id=2):
         self.server_name = server_name
         self.server_port = server_port
@@ -123,6 +125,25 @@ class Client:
         subtitle: the subtitle to give the graph
         data_type: the data type the graph is showing, e.g. degrees celsius.
         """
+        # reformat the data so it's in the format highstocks wants
+        print("starting to format date",data) 
+        for d in data:
+            print(d)
+            for name_and_reading in d["data"]:
+                reading = name_and_reading["data"]
+                proc_readings = []
+                print("before",name_and_reading["data"])
+                for i in range(len(reading)):
+                    date = d["dates"][i]
+                    if type(date) == type(""):
+                        try:
+                            date= float(date)*1000
+                        except ValueError:
+                            date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
+                    date = int(date)
+                    proc_readings.append([date,reading[i]])
+                    name_and_reading["data"] = proc_readings
+                print("after",name_and_reading["data"])
         # TODO: generate tables of data along with graphs
         graph_source = "" # the source code for the graph js
         with open(GRAPH_DATA_PATH) as f:
@@ -250,5 +271,3 @@ class Client:
         """Pings the server to ensure connection is possible"""
         return self.send_data("ping",[])
         
-
-
