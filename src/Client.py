@@ -149,7 +149,7 @@ class Client:
         contents_code = "" # the code to insert into the contents token
         graph_code = "" # the code to insert into the graph token
         for i in range(len(data)):
-            contents_code +=("<div id= graph_%i></div>")%(i)
+            contents_code +=("<div id= graph_%i><h2>"+data[i]["title"]+"</h2></div>")%(i)
             graph_code += graph_source.replace(QUERY_NUMBER,str(i))
 
         results = "" # the full html and js to put into the results page
