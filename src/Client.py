@@ -49,9 +49,10 @@ class Client:
                        "data":[row["value"] for row in result if 
                               (row["group_id"] == g_id and row["type"] == data_type)]}],
              "y_axis_legend": data_type,
-             "title": data_type+" of data queried from Group " + str(g_id),
+             "title": data_type+" measured by Group " + str(g_id),
              "subtitle": "Source: Collection 3 Data",
-             "data_type": HEADER_TO_DATA_TYPE[data_type]
+             "data_type": data_type +" "+ HEADER_TO_DATA_TYPE[data_type]
+
             }
             for data_type in data_types_present for g_id in group_ids]
         
@@ -106,7 +107,7 @@ class Client:
                                 "y_axis_legend": dep_var[i],
                                 "title": dep_var[i]+ " of Data Recorded",
                                 "subtitle": "Source: Collection 3 Data",
-                                "data_type":HEADER_TO_DATA_TYPE[dep_var[i]]}
+                                "data_type":dep_var[i] + " " + HEADER_TO_DATA_TYPE[dep_var[i]]}
                             for i in range(len(dep_var))],
                         open_browser=open_browser,feedback=feedback)
 
@@ -128,17 +129,19 @@ class Client:
         # reformat the data so it's in the format highstocks wants
         for d in data:
             for name_and_reading in d["data"]:
+                name_and_reading["name"] += " : " + d["data_type"]
                 reading = name_and_reading["data"]
                 proc_readings = []
                 for i in range(len(reading)):
                     date = d["dates"][i]
                     
                     try:
-                        date= float(date)*1000
+                        date= float(date)*1000 # wants milliseconds
                     except ValueError:
                         if(date.find(".") != -1):
                             date = date[:date.find(".")]
                         date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
+                        date *= 1000 # wants milliseconds
                     date = int(date)
                     proc_readings.append([date,reading[i]])
                     name_and_reading["data"] = proc_readings
@@ -151,7 +154,7 @@ class Client:
         contents_code = "" # the code to insert into the contents token
         graph_code = "" # the code to insert into the graph token
         for i in range(len(data)):
-            contents_code +=("<div id= graph_%i><h2>"+data[i]["title"]+"</h2></div>")%(i)
+            contents_code +=("<div> <h2>"+data[i]["title"]+"</h2></div><div id= graph_%i></div>")%(i)
             graph_code += graph_source.replace(QUERY_NUMBER,str(i))
 
         results = "" # the full html and js to put into the results page
