@@ -234,7 +234,6 @@ class Client:
         csvreader.next() # skip headers
         types = [HEADING_TO_FULL_NAME[h.strip()] for h in lines[0].split(",")[1:]]
         results = []
-        # TODO: do this in increments of 100s to make give user feedback
         for row in csvreader:
             if row: # skip empty rows
                 for i in range(1,3):
