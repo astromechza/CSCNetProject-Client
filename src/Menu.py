@@ -28,7 +28,7 @@ def choose_screen(msg, choices, opening=False):
     user and a series of choices, and returns the index of the choice
     chosen by the user
     """
-    print(msg) 
+    print("\n"+msg) 
     choice = -1 # the option the user chooses
     while(choice < 0):
         # print options

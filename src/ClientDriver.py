@@ -297,8 +297,8 @@ if __name__=="__main__":
 
         opening_screen = ("Welcome to Sensor Data Client! What would you like to "+
             "do?",
-            ("Capture Sensor Data","Display local data captured from a "+
-            "sensor","Upload Data to Server","Download Data from Server","Get "+
+            ("Capture Sensor Data","Display local data",
+            "Upload Data to Server","Download Data from Server","Get "+
             "Aggregated amount from Server","Get Server Logs","Ping Server","Exit"),
             [capture_data,render_local_data,execute_screen,execute_screen,execute_screen,get_logs,ping,sys.exit],
             ([client],[client],upload_screen,download_screen,agg_screen,[client],[client],[]))

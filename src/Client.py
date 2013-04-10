@@ -17,7 +17,7 @@ HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
 DEFAULT_SERVER = "197.85.191.195"
 class Client:
-    def __init__(self, server_name = "nightmare.cs.uct.ac.za", server_port = 3000,
+    def __init__(self, server_name = "197.85.191.195", server_port = 3000,
     group_id=2):
         self.server_name = server_name
         self.server_port = server_port
@@ -132,11 +132,13 @@ class Client:
                 proc_readings = []
                 for i in range(len(reading)):
                     date = d["dates"][i]
-                    if type(date) == type(""):
-                        try:
-                            date= float(date)*1000
-                        except ValueError:
-                            date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
+                    
+                    try:
+                        date= float(date)*1000
+                    except ValueError:
+                        if(date.find(".") != -1):
+                            date = date[:date.find(".")]
+                        date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
                     date = int(date)
                     proc_readings.append([date,reading[i]])
                     name_and_reading["data"] = proc_readings
