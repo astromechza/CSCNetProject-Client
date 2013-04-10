@@ -126,13 +126,10 @@ class Client:
         data_type: the data type the graph is showing, e.g. degrees celsius.
         """
         # reformat the data so it's in the format highstocks wants
-        print("starting to format date",data) 
         for d in data:
-            print(d)
             for name_and_reading in d["data"]:
                 reading = name_and_reading["data"]
                 proc_readings = []
-                print("before",name_and_reading["data"])
                 for i in range(len(reading)):
                     date = d["dates"][i]
                     if type(date) == type(""):
@@ -143,7 +140,6 @@ class Client:
                     date = int(date)
                     proc_readings.append([date,reading[i]])
                     name_and_reading["data"] = proc_readings
-                print("after",name_and_reading["data"])
         # TODO: generate tables of data along with graphs
         graph_source = "" # the source code for the graph js
         with open(GRAPH_DATA_PATH) as f:

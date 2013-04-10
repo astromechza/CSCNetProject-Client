@@ -180,7 +180,6 @@ def process_download_result(result):
                 f.write("# Data from Server\n"+pair[1]) 
 
     if get_user_confirmation("Display results?"):
-            print("printing graph")
             client.generate_graph_from_results(result)
 
 def get_logs(client):
