@@ -28,7 +28,7 @@ class Punix:
         Handle signal interupts by exiting the program to ensure that all
         subprocesses end properly.
         """
-        print "SIGNAL QUITTING"
+        print("SIGNAL QUITTING")
         sys.exit()
 
     def get_sensor_data(self, duration, data_heading, print_data = True):
@@ -43,7 +43,7 @@ class Punix:
             captured
             """
             if print_data:
-                print "Retrieving Sensor Data for",duration,"seconds"
+                print("Retrieving Sensor Data for",duration,"seconds")
             collected_data = "Time (seconds since epoch)," + data_heading + "\n" # data collecting during the duration
 
             #split string to determine the correct tokenization for 'args' to popen on unix	
@@ -81,7 +81,7 @@ class Punix:
                             raise("Unexpected ending with retcode: " + str(retcode))
 
                 if print_data:
-                    print "\n\nShutting down sensor collection"
+                    print("\n\nShutting down sensor collection")
 
             finally:
                 p.kill() # make sure the process ends!
@@ -95,5 +95,5 @@ if __name__ == "__main__":
     # Collect data for 5 seconds, printing all output, using the default
     # locations for ports and files
     p = Punix()
-    print p.get_sensor_data(5,"Temp,Light",True)
+    print(p.get_sensor_data(5,"Temp,Light",True))
     
