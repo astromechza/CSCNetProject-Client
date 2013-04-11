@@ -1,29 +1,27 @@
 $(function () {
     $('#graph_@QUERY_NUMBER').highcharts('StockChart', {
             chart: {
+		            zoomType: 'x'
             },
 
             rangeSelector: {
-                selected: 4
+				      buttons: [{
+				          type: 'hour',
+				          count: 1,
+				          text: '1h'
+				        }, {
+				          type: 'day',
+				          count: 1,
+				          text: '1d'
+				        }, {
+				          type: 'all',
+				          text: 'All'
+				      }],
+				      selected: 1
             },
 
             yAxis: {
-                labels: {
-                        formatter: function() {
-                                return (this.value > 0 ? '+' : '') + this.value + '%';
-                        }
-                },
-                plotLines: [{
-                        value: 0,
-                        width: 2,
-                        color: 'silver'
-                }]
-            },
-            
-            plotOptions: {
-                series: {
-                        compare: 'percent'
-                }
+                title: { text: 'Reading value' }
             },
             
             tooltip: {

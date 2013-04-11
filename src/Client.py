@@ -168,6 +168,7 @@ class Client:
                     date = int(date)
                     proc_readings.append([date,reading[i]])
                     name_and_reading["data"] = proc_readings
+            del d['dates']
 
         graph_source = "" # the source code for the graph js
         with open(GRAPH_DATA_PATH) as f:
@@ -186,7 +187,7 @@ class Client:
                 results += line
 
         # insert the relevant js and text into the results page html
-        replace_pairs = ((RESULTS_JSON_STRING,"'"+json.dumps(data)+"'"),
+        replace_pairs = ((RESULTS_JSON_STRING,json.dumps(data)),
                         (RESULTS_FOOTER,"Generated at " +str(datetime.datetime.now())),
                         (CONTAINER_TOKEN, contents_code),
                         (GRAPH_TOKEN, graph_code))
