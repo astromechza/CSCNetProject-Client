@@ -11,10 +11,11 @@ def capture_data(client, write_to_file=True):
     if given_file_path is not empty, data will be captured to that file"""
     # user's choice for duration - must be positive
     choice = get_valid_input("How many seconds would you like to "+
-            "capture data for: ", 
+            "capture data for?", 
             "Please input an positive number of seconds", 
             lambda x: x > 0, data_converter= float)
-
+    if choice == "":
+        return;
     # Get the options for data capture
     file_path = ""
     if write_to_file:
@@ -32,10 +33,11 @@ def capture_data(client, write_to_file=True):
 def render_local_data(client, file_path=""):
     """Prompts user to give location of data to be rendered into html"""
     if not file_path:
-        file_path = get_valid_input("Path of results data file: ",
+        file_path = get_valid_input("Path of results data file",
                 "Please input a file that exists", 
                 lambda x: os.path.isfile(x))
-    
+    if file_path=="":
+        return;
     open_browser = get_user_confirmation("Do you want to open a web browser to view "+
                          " this data?") 
     print("Rendering data")
@@ -55,9 +57,11 @@ def upload_data(client, source_id):
         raise ValueError("source_id not recognised")
 
     if(source_id == 0):
-        path = get_valid_input("Path of results data file: ",
+        path = get_valid_input("Path of results data file",
             "Please input a file that exists", 
             lambda x: os.path.isfile(x))
+        if path=="":
+            return;
         with open(path) as f:
             data = "".join(f.readlines())
     
@@ -79,9 +83,10 @@ def get_group_data(client, group_id = -1):
     otherwise, this will try get the info for that group id
     """
     if group_id==-1: # pick group
-        group_id = get_valid_input("Which group do you want to download from? "+
+        group_id = get_valid_input("Which group do you want to download from?"+
                                    "Give their SQL id: ",
                                    "Please input a valid id", lambda x: x > 0, int)
+        if group_id == "": return;
     
     group_ids = []
 
@@ -105,11 +110,10 @@ def get_raw_data(client):
     choice = "NOT EMPTY"
     group_ids = set()
     while str(choice).strip():
-        choice = get_valid_input("Enter a group number to download (press "+
-        "enter when you want to stop): ",
+        choice = get_valid_input("Enter a group number to download",
                     "Please input a positive integer", 
-                    lambda x: True if x == "" else x > 0,
-                    lambda x: x if x=="" else int(x))
+                    lambda x:  x > 0,
+                    int)
         if choice: group_ids.add(choice)
     if group_ids == set():
         print("No groups selected, going back to main menu")
@@ -126,11 +130,10 @@ def get_raw_data(client):
     types = set()
     while str(choice).strip():
         choice = get_valid_input("Enter a data type "+
-        "([T]emperature,[H]umidity,[L]ight) to download "+
-        "(press enter when you want to stop): ",
+        "([T]emperature,[H]umidity,[L]ight) to download",
                     "Please input one of the letters representing choices above", 
-                    lambda x: (x=="" or x[0].lower() in ["t","h","l"]),
-                    )
+                    lambda x: x[0].lower() in ["t","h","l"])
+                    
         if choice: types.add(choice)
     if types == set():
         print("No data types selected, going back to main menu")
@@ -188,8 +191,7 @@ def get_logs(client):
     choice = "NOT EMPTY"
     group_ids = set()
     while str(choice).strip():
-        choice = get_valid_input("Enter a group number to download (press "+
-        "enter when you want to stop): ",
+        choice = get_valid_input("Enter a group number to download",
                     "Please input a positive integer", 
                     lambda x: True if x == "" else x > 0,
                     lambda x: x if x=="" else int(x))
@@ -204,10 +206,12 @@ def get_logs(client):
     time_from = get_timestamp("Enter from what time the results must start from.")
     time_to = get_timestamp("Enter what time you want the results to end on")
     
-    no_logs = get_valid_input("Enter a number of logs to download:",
+    no_logs = get_valid_input("Enter a number of logs to download",
                 "Please input a positive integer", 
                     lambda x: x > 0,
                     int)
+    if no_logs=="":
+        return;
     response =  client.get_logs(number_of_logs=no_logs,group_ids=ids,time_from=time_from,time_to=time_to)
     if response["result"]:
         result = response["result"]["lines"]
@@ -241,10 +245,9 @@ def get_aggregated_data(client, agg_type):
     
     # capture data types wanted
     data_type = get_valid_input("Enter a data type "+
-    "([T]emperature,[H]umidity,[L]ight) to download "+
-    "(press enter to go back to main menu): ",
+    "([T]emperature,[H]umidity,[L]ight) to download ",
                 "Please input one of the letters representing choices above", 
-                lambda x: (x=="" or x[0].lower() in ["t","h","l"]))
+                lambda x: x[0].lower() in ["t","h","l"])
     if data_type == "":
         print("No data types selected, going back to main menu")
         return;
@@ -252,11 +255,10 @@ def get_aggregated_data(client, agg_type):
     data_type = filter(lambda i: i[0] == data_type.lower(),DATA_TYPES)[0]
 
     # get the group id
-    group_id = get_valid_input("Enter a group number to download (press "+
-    "enter when you want to stop): ",
+    group_id = get_valid_input("Enter a group number to download",
                 "Please input a positive integer", 
-                lambda x: True if x == "" else x > 0,
-                lambda x: x if x=="" else int(x))
+                lambda x: x > 0,
+                int)
     if group_id == "":
         print("No groups selected, going back to main menu")
         return;
@@ -270,6 +272,8 @@ def get_aggregated_data(client, agg_type):
     response = client.get_aggregation(agg_type, data_type, group_id,time_from, time_to)
     if response["result"]:
         print(agg_type + ":" + str(response["result"]))
+    else:
+        print("No data points found to make aggregation")
     return response
 
 
