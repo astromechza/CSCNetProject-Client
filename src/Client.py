@@ -15,7 +15,6 @@ HEADER_TO_DATA_TYPE = \
 {"Temp":"(\u00b0C)","Light":"(Lumens)","temperature":"(\u00b0C)","light":"(Lumens)","humidity":"(Absolute humidity)"}
 HEADING_TO_FULL_NAME = {"Temp":"temperature","Light":"light"}
 SERVER_DATA_LINE = "# Data from Server"
-DEFAULT_SERVER = "197.85.191.195"
 
 class Client:
     def __init__(self, server_name = "197.85.191.195", server_port = 3000,
@@ -294,7 +293,13 @@ class Client:
             if verbose:
                 print("Received data, closed socket")
         except timeout:
-            print("Connection timed out")
+            print("Error: Connection timed out")
+
+        except gaierror as e:
+            print("Gai error({0}): {1}".format(e.errno,e.strerror))
+        
+        except error as e: # socket error:
+            print("Socket error({0}): {1}".format(e.errno,e.strerror))
         finally:
             client_socket.close()
 
@@ -302,7 +307,7 @@ class Client:
         if reply: # data received, load object send
             response = json.loads("".join(reply))
         else: # data not recieved, default to error
-            response = {"result":"","error":"Server timed out"}
+            response = {"result":"","error":"No response from server"}
 
         if "error" in response: # client has given an error
             print("Error from server: " + response["error"])
