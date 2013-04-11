@@ -299,7 +299,7 @@ if __name__=="__main__":
         download_screen = ("What data do you want to download?",
             ("Get own data","Get another group's data","Get all data","Get raw Data"),
             [get_group_data]*3+[get_raw_data],
-            ((client,2),(client,-1),(client,0),[client]))
+            ((client,3),(client,-1),(client,0),[client]))
         agg_screen=("Which aggregation do you want to get?",
             ("count (how many data points)",
             "mean (average of the data points)",
