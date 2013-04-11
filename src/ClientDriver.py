@@ -1,6 +1,6 @@
 from Client import Client
 from Menu import *
-import sys, os, datetime
+import sys, os, datetime, argparse
 DATA_TYPES = ["light","temperature","humidity"]
 SERVER_DATA_LINE = "# Data from Server"
 HEADER_TO_DATA_TYPE = \
@@ -270,8 +270,26 @@ def get_aggregated_data(client, agg_type):
         print(agg_type + ":" + str(response["result"]))
     return response
 
+
+# Set up command line argument passing
+parser = argparse.ArgumentParser(description='Set the server details')
+parser.add_argument("-a",help="The address of the server. Defaults to 197.85.191.195")
+parser.add_argument("-p",help="The port to connect to on the server. Defaults"+
+                              " to 3000")
 if __name__=="__main__":
-    client = Client()
+    # setup client with arguments given from command line
+    args = parser.parse_args()
+    server_details = dict()
+    if args.a != None:
+        server_details["server_name"]= args.a
+    if args.p != None:
+        try:
+            server_details["server_port"] = int(args.p)
+        except ValueError:
+            print("Error: Port not an integer. Exiting")
+            sys.exit()
+    client = Client(**server_details)
+
     while True:
         upload_screen = ("Where do you want to upload data from?",
             ("Local File","Sensor"),
