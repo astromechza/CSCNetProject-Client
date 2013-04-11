@@ -18,7 +18,7 @@ SERVER_DATA_LINE = "# Data from Server"
 
 class Client:
     def __init__(self, server_name = "197.85.191.195", server_port = 3000,
-    group_id=2):
+    group_id=3):
         self.server_name = server_name
         self.server_port = server_port
         self.port_address="/dev/ttyUSB0"
@@ -237,14 +237,20 @@ class Client:
             if row: # skip empty rows
                 for i in range(1,3):
                     results.append({"time":int(float(row[0])*1000),"type":types[i-1],"value":float(row[i])})
-
-        return self.send_data("new_readings",{"readings":results})
+        responses = []
+        interval = 100
+        for i in range(0,len(results)-interval,interval):
+            print("Uploading readings " + str(i) + " to " + str(i+interval))
+            responses.append(self.send_data("new_readings",{"readings":results[i:i+interval]}))
+        return responses
 
     def download(self,group_ids = [], time_from="", time_to="",
-                 types = ["light","temperatures","humidity"]):
+                 types = []):
 
         """Fetches all records for a given query from the server"""
-        params ={"types":types}
+        params = dict()
+        if types != []:
+            params["types"] = types
         if group_ids != []:
             params["group_ids"] = group_ids
         if time_from != "":
@@ -269,9 +275,8 @@ class Client:
         # setup data for transfer
         query = json.dumps({"method":method,"params":params, "group_id":self.group_id})
         client_socket = socket(AF_INET, SOCK_STREAM) # set socket to TCP
-        client_socket.settimeout(5) # to make sure client doesn't wait eternally
+        client_socket.settimeout(1000) # to make sure client doesn't wait eternally
         reply = [] # the lines of reply the server sends back
-
         try:
             if verbose:
                 print("Socket made")

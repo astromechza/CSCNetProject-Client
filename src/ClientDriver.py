@@ -67,8 +67,8 @@ def upload_data(client, source_id):
     response = ""
     if data: 
         response = client.upload(data)
-    if response["result"]:
-        print(response["result"])
+    if all([r["result"] for r in response]):
+        print("Upload successful")
     return response
 
 def get_group_data(client, group_id = -1):
@@ -90,7 +90,7 @@ def get_group_data(client, group_id = -1):
     else: # all groups need to be downloaded
         group_ids = [] # no specification means all groups 
     # download results
-    response = client.download(group_ids = group_ids, types = ["light","temperatures","humidity"])
+    response = client.download(group_ids = group_ids)
     result = response["result"]
 
     # allow user to see results 
