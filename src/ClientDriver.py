@@ -129,12 +129,14 @@ def get_raw_data(client):
         "([T]emperature,[H]umidity,[L]ight) to download "+
         "(press enter when you want to stop): ",
                     "Please input one of the letters representing choices above", 
-                    lambda x: (x=="" or x[0].lower() in ["t","h","l"]))
+                    lambda x: (x=="" or x[0].lower() in ["t","h","l"]),
+                    )
         if choice: types.add(choice)
     if types == set():
         print("No data types selected, going back to main menu")
         return;
-    # get data types from selections
+    # get data types from selectionsa
+    types = [s.lower() for s in types]
     data_types = filter(lambda i: i[0] in types,DATA_TYPES)
     
     # only pass the parameters that aren't empty
@@ -247,7 +249,7 @@ def get_aggregated_data(client, agg_type):
         print("No data types selected, going back to main menu")
         return;
     # get data types from selections
-    data_type = filter(lambda i: i[0] == data_type,DATA_TYPES)[0]
+    data_type = filter(lambda i: i[0] == data_type.lower(),DATA_TYPES)[0]
 
     # get the group id
     group_id = get_valid_input("Enter a group number to download (press "+

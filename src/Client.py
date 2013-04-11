@@ -233,7 +233,7 @@ class Client:
                     results.append({"time":int(float(row[0])*1000),"type":types[i-1],"value":float(row[i])})
         responses = []
         interval = 100
-        for i in range(0,len(results)-interval,interval):
+        for i in range(0,len(results),interval):
             print("Uploading readings " + str(i) + " to " + str(i+interval))
             responses.append(self.send_data("new_readings",{"readings":results[i:i+interval]}))
         return responses
