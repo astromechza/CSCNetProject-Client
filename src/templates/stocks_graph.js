@@ -25,8 +25,16 @@ $(function () {
             },
             
             tooltip: {
-                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
-                valueDecimals: 2
+				      formatter: function() {
+	                  var s = Highcharts.dateFormat('%H:%M - %a, %b %e, %Y', this.x);
+
+	                  $.each(this.points, function(i, point) {
+	                      s += '<br/><span style="color:'+point.series.color+'; font-weight: bold;">'+point.series.name+':</span> '+Math.round(point.y*Math.pow(10,2))/Math.pow(10,2);
+	                  });
+
+	                  return s;
+	                },
+				      useHTML: true              
             },
             
             series: query_data[@QUERY_NUMBER]["data"]

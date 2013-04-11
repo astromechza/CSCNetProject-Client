@@ -39,22 +39,49 @@ class Client:
         """
         # find all data_types present in the data
         data_types_present = {row["type"] for row in result}
+        
+        print(str(data_types_present))
         # find all the groups present in the data
         group_ids = {row["group_id"] for row in result}
         # for each group, creat a graph representing its data
-        data_to_graph = [ 
-            {"dates":[row["time"] for row in result if
-            (row["type"]==data_type and row["group_id"] == g_id)],
-             "data": [{"name": "Group " + str(g_id), 
-                       "data":[row["value"] for row in result if 
-                              (row["group_id"] == g_id and row["type"] == data_type)]}],
-             "y_axis_legend": data_type,
-             "title": data_type+" measured by Group " + str(g_id),
-             "subtitle": "Source: Collection 3 Data",
-             "data_type": data_type +" "+ HEADER_TO_DATA_TYPE[data_type]
-
+        
+        data_to_graph = []
+        for data_type in data_types_present:
+            
+            graph_info = {
+                "dates": [row["time"] for row in result if row["type"]==data_type],
+                "title": data_type,
+                "data_type": data_type +" "+ HEADER_TO_DATA_TYPE[data_type]
             }
-            for data_type in data_types_present for g_id in group_ids]
+            
+            series_data = []
+            for g_id in group_ids:
+                series = {"name": "Group " + str(g_id)}
+                dates_used = set()
+                data = []
+                for row in result:
+                    if (row["group_id"] == g_id and row["type"] == data_type and (row['time'] not in dates_used)):
+                        date = row['time']
+                        try:
+                            date= float(date)*1000 # wants milliseconds
+                        except ValueError:
+                            if(date.find(".") != -1):
+                                # database doesn't store milliseconds, so remove
+                                # them
+                                date = date[:date.find(".")] 
+                            date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
+                            date *= 1000 # wants milliseconds
+                            date = int(date)
+                    
+                        data.append([date, row['value']])
+                        dates_used.add(row['time'])
+                series["data"] = data
+                series_data.append(series)             
+            
+ 
+            graph_info["data"] = series_data
+            del graph_info["dates"]
+            data_to_graph.append(graph_info)
         
         # Generate the graphs
         self.generate_graphs(data=data_to_graph,open_browser=True,feedback=True)
@@ -135,39 +162,7 @@ class Client:
         # this would break other client's the most sensible change, with almost
         # no impact to the actual conclusions that can be taken to the
         # readings, is just making sure there's only one value per second.
-        for data_set in data:
-            set_of_dates = set()
-            indices_to_keep = []
-            for i in range(len(data_set["dates"])):
-                date = data_set["dates"][i]
-                if not(date in set_of_dates): # not duplicate date
-                    indices_to_keep.append(i)
-                    set_of_dates.add(date)
-            for date_readings in data_set["data"]:
-                date_readings["data"] = [date_readings["data"][i] for i in indices_to_keep]
 
-        # reformat the data so it's in the format highstocks wants
-        for d in data:
-            for name_and_reading in d["data"]:
-                name_and_reading["name"] += " : " + d["data_type"]
-                reading = name_and_reading["data"]
-                proc_readings = []
-                for i in range(len(reading)):
-                    date = d["dates"][i]
-                    
-                    try:
-                        date= float(date)*1000 # wants milliseconds
-                    except ValueError:
-                        if(date.find(".") != -1):
-                            # database doesn't store milliseconds, so remove
-                            # them
-                            date = date[:date.find(".")] 
-                        date = time.mktime(time.strptime(date,"%Y-%m-%d %H:%M:%S"))
-                        date *= 1000 # wants milliseconds
-                    date = int(date)
-                    proc_readings.append([date,reading[i]])
-                    name_and_reading["data"] = proc_readings
-            del d['dates']
 
         graph_source = "" # the source code for the graph js
         with open(GRAPH_DATA_PATH) as f:
@@ -242,7 +237,7 @@ class Client:
         return self.send_data("new_readings",{"readings":results})
 
     def download(self,group_ids = [], time_from="", time_to="",
-                 types = ["light","temperatures","humidity"]):
+                 types = ["light","temperature","humidity"]):
 
         """Fetches all records for a given query from the server"""
         params ={"types":types}
@@ -252,6 +247,7 @@ class Client:
             params["time_from"] = time_from
         if time_to != "":
             params["time_to"] = time_to
+        print(str(params))
         return self.send_data("query_readings",params)
 
     def get_logs(self,number_of_logs=20,group_ids=[],time_from="",time_to=""):

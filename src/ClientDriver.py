@@ -90,7 +90,7 @@ def get_group_data(client, group_id = -1):
     else: # all groups need to be downloaded
         group_ids = [] # no specification means all groups 
     # download results
-    response = client.download(group_ids = group_ids, types = ["light","temperatures","humidity"])
+    response = client.download(group_ids = group_ids, types = ["light","temperature","humidity"])
     result = response["result"]
 
     # allow user to see results 
