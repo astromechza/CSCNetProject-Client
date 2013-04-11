@@ -39,8 +39,6 @@ class Client:
         """
         # find all data_types present in the data
         data_types_present = {row["type"] for row in result}
-        
-        print(str(data_types_present))
         # find all the groups present in the data
         group_ids = {row["group_id"] for row in result}
         # for each group, creat a graph representing its data
@@ -254,7 +252,7 @@ class Client:
             params["time_from"] = time_from
         if time_to != "":
             params["time_to"] = time_to
-        print(str(params))
+            
         return self.send_data("query_readings",params)
 
     def get_logs(self,number_of_logs=20,group_ids=[],time_from="",time_to=""):
