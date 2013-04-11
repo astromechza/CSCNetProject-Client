@@ -170,7 +170,7 @@ class Client:
         contents_code = "" # the code to insert into the contents token
         graph_code = "" # the code to insert into the graph token
         for i in range(len(data)):
-            contents_code +=("<div> <h2>"+data[i]["title"]+"</h2></div><div id= graph_%i></div>")%(i)
+            contents_code +=("<div> <h2>" + (data[i]["title"]).title() + "</h2></div><div id= graph_%i></div>")%(i)
             graph_code += graph_source.replace(QUERY_NUMBER,str(i))
 
         results = "" # the full html and js to put into the results page
@@ -196,7 +196,15 @@ class Client:
             dir_path = os.path.split(os.path.realpath(__file__))[0]
             results_path = os.path.join(dir_path,"results.html")
             url = "file://"+results_path
-            webbrowser.open_new_tab(url)
+
+            # Open web browser tab, suppress stdout message
+            savout = os.dup(1)
+            os.close(1)
+            os.open(os.devnull, os.O_RDWR)
+            try:
+                webbrowser.open(url)
+            finally:
+                os.dup2(savout, 1)
         else: 
             if feedback:
                 print("Results saved as results.html. Please open with a web browser"+
@@ -287,7 +295,7 @@ class Client:
                 print("Receiving data")
             running = True
             while running:
-                    data = client_socket.recv(1024)
+                    data = client_socket.recv(4096)
                     reply.append(data)
                     if data.endswith("\n"): # json terminates with \n
                         running = False

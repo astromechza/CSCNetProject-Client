@@ -4,7 +4,7 @@ Some utility methods to make the operating of a menu system slightly easier
 """
 
 def get_valid_input(msg, valid_input_msg, restriction, data_converter= lambda
-                    x: x,back_message=" (Press enter to stop):"):
+                    x: x,back_message=" (Press enter to stop): "):
    """Prints msg until the input given can be converted to the data type given
    by the data_converter and that data satisfies the restriction function
    given. If data entered doesn't satisfy both these, print valid_input_msg"""
@@ -57,7 +57,7 @@ def execute_screen(msg, choices,methods,args,opening=False):
 def get_user_confirmation(msg):
     """Get a user to either confirm or reject a request"""
     return get_valid_input(
-        msg+ " (y/n or enter) :", "Please enter either y or n", 
+        msg+ " (y/n or enter): ", "Please enter either y or n", 
         lambda x: x.lower().startswith("y") or
         x.lower().startswith("n"), back_message="").startswith("y")
 
