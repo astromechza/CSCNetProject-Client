@@ -2,9 +2,7 @@ import json, webbrowser, os, datetime, csv, time
 from punix import Punix
 from socket import *
 
-#RESULTS_DATA_PATH = "templates/results.html"
 RESULTS_DATA_PATH = "templates/stocks_results.html"
-#GRAPH_DATA_PATH = "templates/graph.js"
 GRAPH_DATA_PATH = "templates/stocks_graph.js"
 RESULTS_JSON_STRING = "@JSON_QUERY_DATA_STRING"
 RESULTS_FOOTER = "@FOOTER_CONTENTS"
@@ -19,6 +17,8 @@ SERVER_DATA_LINE = "# Data from Server"
 class Client:
     def __init__(self, server_name = "197.85.191.195", server_port = 3000,
     group_id=3):
+        """Create a new client to connect to a server. Defaultly connects to
+        the test server as group 3"""
         self.server_name = server_name
         self.server_port = server_port
         self.port_address="/dev/ttyUSB0"

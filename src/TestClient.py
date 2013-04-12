@@ -20,7 +20,7 @@ graph_data = {
 
 results_data = [{u'group_id': 1,
 u'type': u'light', u'value': 1, u'time': u'2013-04-01 00:00:00.0'},
-{u'group_id': 1, u'type': u'light', u'value': 2, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type': u'light', u'value': 3, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type': u'light', u'value': 1, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type': u'light',u'value': 8, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type':u'humidity', u'value': 61.5658, u'time': u'2013-04-08 16:55:35.0'},{u'group_id': 1, u'type': u'light', u'value': 12.1676, u'time': u'2013-04-0816:55:36.0'}, {u'group_id': 1, u'type': u'humidity', u'value': 67.8501,u'time': u'2013-04-08 16:55:36.0'}, {u'group_id': 1, u'type': u'humidity',u'value': 64.3722, u'time': u'2013-04-08 16:55:37.0'}, {u'group_id': 1,u'type': u'humidity', u'value': 51.9798, u'time': u'2013-04-08 16:55:37.0'},{u'group_id': 1, u'type': u'humidity', u'value': 14.6104, u'time': u'2013-04-08 16:55:38.0'}, {u'group_id': 1, u'type': u'light', u'value': 59.1693, u'time':u'2013-04-08 16:55:38.0'}, {u'group_id': 1, u'type': u'light', u'value':34.8685, u'time': u'2013-04-08 16:55:40.0'}, {u'group_id': 1, u'type':u'humidity', u'value': 26.1523, u'time': u'2013-04-08 16:55:41.0'},{u'group_id': 1, u'type': u'light', u'value': 32.1843, u'time': u'2013-04-08 16:55:42.0'}, {u'group_id': 1, u'type': u'light', u'value': 18.2174, u'time':u'2013-04-08 16:55:42.0'}, {u'group_id': 1, u'type': u'light', u'value':69.6449, u'time': u'2013-04-08 16:55:43.0'}, {u'group_id': 1, u'type':u'light', u'value': 5.55437, u'time': u'2013-04-08 16:55:43.0'}]
+{u'group_id': 1, u'type': u'light', u'value': 2, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type': u'light', u'value': 3, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type': u'light', u'value': 1, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type': u'light',u'value': 8, u'time': u'2013-04-01 00:00:00.0'}, {u'group_id': 1, u'type':u'humidity', u'value': 61.5658, u'time': u'2013-04-08 16:55:35.0'},{u'group_id': 1, u'type': u'light', u'value': 12.1676, u'time': u'2013-04-08 16:55:36.0'}, {u'group_id': 1, u'type': u'humidity', u'value': 67.8501,u'time': u'2013-04-08 16:55:36.0'}, {u'group_id': 1, u'type': u'humidity',u'value': 64.3722, u'time': u'2013-04-08 16:55:37.0'}, {u'group_id': 1,u'type': u'humidity', u'value': 51.9798, u'time': u'2013-04-08 16:55:37.0'},{u'group_id': 1, u'type': u'humidity', u'value': 14.6104, u'time': u'2013-04-08 16:55:38.0'}, {u'group_id': 1, u'type': u'light', u'value': 59.1693, u'time':u'2013-04-08 16:55:38.0'}, {u'group_id': 1, u'type': u'light', u'value':34.8685, u'time': u'2013-04-08 16:55:40.0'}, {u'group_id': 1, u'type':u'humidity', u'value': 26.1523, u'time': u'2013-04-08 16:55:41.0'},{u'group_id': 1, u'type': u'light', u'value': 32.1843, u'time': u'2013-04-08 16:55:42.0'}, {u'group_id': 1, u'type': u'light', u'value': 18.2174, u'time':u'2013-04-08 16:55:42.0'}, {u'group_id': 1, u'type': u'light', u'value':69.6449, u'time': u'2013-04-08 16:55:43.0'}, {u'group_id': 1, u'type':u'light', u'value': 5.55437, u'time': u'2013-04-08 16:55:43.0'}]
 class TestClient(unittest.TestCase):
 
     def setUp(self):
@@ -62,12 +62,12 @@ class TestClient(unittest.TestCase):
     
     def test_download(self):
         """Tests if client can download data from server"""
-        self.assertTrue(self.c.download()["result"][0])
+        self.assertTrue(self.c.download(group_ids=[3])["result"])
 
     def test_multiple_group_downloads(self):
         """Tests if client can download  data with multiple group ids from
         server"""
-        self.assertTrue(self.c.download(group_ids=[1,3])["result"][0])
+        self.assertTrue(self.c.download(group_ids=[1,3])["result"])
 
     def test_download_logs(self):
         """Tests if client can download logs from the server"""
